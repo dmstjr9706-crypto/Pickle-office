@@ -43,10 +43,13 @@ office/
 DB 규칙은 다음 한 줄로 요약됩니다.
 
 ```
-office/status   .read = true          .write = 기록자 uid 만
-office/presence .read = true          .write = 기록자 uid 만
-office/log      .read = true          .write = 기록자 uid 만
+office/status   .read = 누구나        .write = 기록자 uid 만
+office/presence .read = 누구나        .write = 기록자 uid 만
+office/log      .read = 기록자만       .write = 기록자 uid 만
 ```
+
+- `status`는 암호문이라 공개돼도 안전하고, `presence`는 자리 이름과 시각만 있어 공개해도 된다.
+- `log`(기록 메모)는 공개하지 않는다. 기록자로 로그인해야 볼 수 있다.
 
 - 익명·비로그인 쓰기는 **거부**됩니다(401 Permission denied). 공개 저장소에 DB 주소가 보여도
   남이 현황을 지우거나 바꿀 수 없습니다.
@@ -125,5 +128,8 @@ curl -s "https://pickle-office-rtdb-default-rtdb.asia-southeast1.firebasedatabas
 ```
 
 - `Permission denied` → 기록자 계정/토큰 문제. `.office-db.json` 확인 후 `.office-db-token.json` 삭제하고 다시.
+- `log` 를 읽을 때도 `Permission denied` 가 나오는 것은 정상이다(공개 아님).
+- 기록자 비밀번호를 바꾸려면 Firebase 콘솔 Authentication 에서 사용자를 새로 만들고, 규칙의 `auth.uid === '…'`
+  값을 새 uid 로 바꾼 뒤 세 곳에 새 자격증명을 나눠 준다.
 - `DB 암호문을 이 비밀번호로 열 수 없습니다` → `.office-secret` 의 비밀번호가 DB와 다름.
 - 콘솔: https://console.firebase.google.com/project/pickle-office-rtdb/database/pickle-office-rtdb-default-rtdb/data
