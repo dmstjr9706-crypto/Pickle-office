@@ -800,8 +800,11 @@
     document.title = "피클 합동 비서실 · 3곳 자동화 현황판";
   }
 
+  var LOCK_SUB = "비서 셋만 들어올 수 있어요.<br>비밀번호를 넣어 주세요.";
+
   function showLock(msg) {
     clearApp();
+    $("#lock-sub").innerHTML = LOCK_SUB;
     $("#lock").hidden = false;
     $("#app").hidden = true;
     $("#lock-err").textContent = msg || "";
@@ -896,7 +899,7 @@
       .then(showApp)
       .catch(function () {
         forget();
-        $("#lock-sub").innerHTML = "비서 셋만 들어올 수 있어요.<br>비밀번호를 넣어 주세요.";
+        $("#lock-sub").innerHTML = LOCK_SUB;
         $("#lock-foot").textContent = "현황 데이터는 암호화되어 있습니다";
         $("#lock-pw").focus();
       })
