@@ -44,6 +44,19 @@
     padding:20px 0 18px;
   }
   @media(min-width:768px){ .hero{padding:28px 0 24px} }
+  @media(max-width:560px){
+    .hero{padding:14px 0 13px}
+    .hero-in{gap:10px}
+    .brand{gap:10px}
+    .logo{width:44px;height:44px;border-radius:13px}
+    .headline{font-size:12px}
+    .live{width:100%;flex-direction:row;flex-wrap:wrap;align-items:center;gap:4px 10px;padding:7px 11px;text-align:left}
+    .live .clockline{gap:5px}
+    .live strong{font-size:16px}
+    .live p#updated{margin-left:auto;font-size:10px}
+    .srcline{display:none}
+    .lockbtn{margin-top:0}
+  }
   .hero-in{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:flex-start;justify-content:space-between}
   .brand{display:flex;gap:12px;align-items:flex-start;min-width:0}
   .logo{
@@ -132,7 +145,7 @@
     left:-6px;top:18px;transform:rotate(135deg);border-radius:0 0 2px 0
   }
   @media(min-width:700px){
-    .bubble{min-height:82px;margin-bottom:2px}
+    .bubble{min-height:82px;margin-bottom:-4px}
     .bubble::after{left:50%;top:auto;bottom:-6.5px;transform:translateX(-50%) rotate(45deg)}
   }
   .bnow{margin:0;font-size:12.5px;font-weight:650;line-height:1.45;color:#3B3341;
@@ -172,16 +185,26 @@
 
   @media(max-width:699px){
     .seat{
-      display:grid;grid-template-columns:104px minmax(0,1fr);
-      grid-template-areas:"fig plate" "fig bubble";
-      gap:6px 10px;align-items:start;padding:9px 0 10px;
+      display:grid;grid-template-columns:96px minmax(0,1fr);
+      grid-template-areas:"plate plate" "fig bubble";
+      gap:6px 9px;align-items:start;padding:8px 0 10px;
       border-top:1px dashed rgba(190,150,105,.38)
     }
-    .seat:first-child{border-top:0;padding-top:4px}
-    .seat .figure{grid-area:fig;align-self:start;margin:4px 0 0}
+    .seat:first-child{border-top:0;padding-top:2px}
+    .seat .figure{grid-area:fig;align-self:end;margin:0}
     .seat .plate{grid-area:plate;margin:0}
-    .seat .bubble{grid-area:bubble;margin:0}
+    .seat .bubble{grid-area:bubble;margin:0;align-self:stretch}
+    .seat .bubble::after{top:14px}
+    .seat .bnow{-webkit-line-clamp:4;font-size:12px}
+    .seat .bnext{font-size:10.5px}
     .seat .duties{display:none}
+    .figure svg{max-height:112px}
+    .wall{padding:12px 12px 0}
+    .deco svg{height:52px}
+    .deco .d-lamp{height:62px}
+    .seats{padding:0 10px}
+    .shared{padding:0 10px 10px}
+    .shared-cap{font-size:9px}
   }
 
   .shared{margin-top:8px;padding:0 12px 12px;position:relative;z-index:2}
