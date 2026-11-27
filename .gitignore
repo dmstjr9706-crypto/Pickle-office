@@ -2,6 +2,13 @@
 .office-secret
 data/status.json
 data/*.tmp
+.office-db.json
+.office-db-token.json
+data/*.bak
 
 # OS 쓰레기
 .DS_Store
+
+# 파이썬 캐시
+scripts/__pycache__/
+*.pyc

@@ -6,24 +6,38 @@
 - **라이브 주소** — https://dmstjr9706-crypto.github.io/Pickle-office/
 - **구성** — 상단은 3개 방으로 된 오피스 맵(SVG 캐릭터가 각자 자리에서 움직임), 하단은 유튜브 예약 · 블로그/클립/쓰레드 · 체험단/크몽/공모전 · 오늘의 타임라인 현황판
 - **잠금** — 페이지에 들어가면 먼저 비밀번호 잠금 화면이 뜨고, 비밀번호를 넣어야 현황판이 복호화되어 그려진다. 틀리면 열리지 않는다
-- **기술** — `index.html` 한 장 + 암호화된 `data/status.enc.json` 하나. 빌드 없음, 외부 라이브러리·폰트·추적 없음. GitHub Pages(`gh-pages` / root)로 배포
+- **실시간 공용 DB** — Firebase Realtime Database(`pickle-office-rtdb`). 세 곳이 각자 상태를 직접 올리고, 페이지는 그 암호문을 실시간으로 받아 그린다. DB가 막히면 저장소의 암호화 사본으로 자동 대체
+- **기술** — `index.html` 한 장 + 암호문 하나. 빌드 없음, 외부 라이브러리·폰트·추적 없음(실시간은 브라우저 기본 `EventSource`). GitHub Pages(`gh-pages` / root)로 배포
 
 ```
-index.html                   화면 (HTML + CSS + 잠금·복호화·렌더링 스크립트, 외부 의존성 없음)
+index.html                   화면 (HTML + CSS + 잠금·복호화·렌더링·실시간 스트림 스크립트, 외부 의존성 없음)
 data/status.json             ← 평문 현황. 로컬에만 두고 저장소에는 올리지 않는다(.gitignore)
-data/status.enc.json         ← 저장소·페이지가 보는 유일한 데이터. PBKDF2 + AES-256-GCM 암호문
+data/status.enc.json         ← 저장소 사본(대체용). PBKDF2 + AES-256-GCM 암호문. DB와 같은 내용
 .office-secret               비밀번호 한 줄 (로컬 전용, .gitignore)
+.office-db.json              DB 기록자 자격증명 (로컬 전용, .gitignore)
 docs/sync-guide.md           갱신 규칙 · 항목별 작성법 · 공개 금지 정보
+docs/db-guide.md             실시간 DB 구조 · 세 곳이 쓰는 방법 · 보안 규칙
 scripts/validate_status.py   커밋 전 검사 (형식 + 개인정보 패턴)
 scripts/encrypt_status.py    평문 → 암호문 (PBKDF2-HMAC-SHA256 → AES-256-GCM)
+scripts/office_db.py         실시간 DB 동기화 (verify/get/pull/push/seat/presence/timeline)
 scripts/set_status.py        캐릭터의 "지금" 한 줄만 빠르게 바꾸는 도우미
 ```
 
 ## 현황 갱신 방법
 
+### 1) 내 자리 한 줄 (실시간 DB — 가장 빠름, GitHub 연결 없어도 됨)
+
+```bash
+python3 scripts/office_db.py seat chuchu --now "생존 EP.10 제작 중" --state "가동 중"
+```
+
+올린 즉시(수 초) 라이브 페이지에 반영된다. 자세한 것은 [`docs/db-guide.md`](docs/db-guide.md).
+
+### 2) 전체 현황 (저장소 사본까지 함께 갱신)
+
 1. `data/status.json`을 연다. (`updated_at`은 `2026-11-27T14:30:00+09:00` 형식)
 2. 바꿀 항목만 수정한다 — 캐릭터의 `now` / `state`, 유튜브 `slots`, `publishing`, `campaigns`, `timeline`.
-3. 한 줄로 검사·암호화·커밋·푸시한다.
+3. 한 줄로 검사·암호화·DB 업로드·커밋·푸시한다. (`.office-db.json`이 있으면 DB까지 같이 올라간다)
 
 ```bash
 ./scripts/publish.sh "status: 11/27 18시 공개 확인 반영"
@@ -32,7 +46,7 @@ scripts/set_status.py        캐릭터의 "지금" 한 줄만 빠르게 바꾸�
 `publish.sh`가 순서대로 하는 일:
 
 1. `validate_status.py` — 형식 + 개인정보 패턴 검사
-2. `encrypt_status.py` — `data/status.json` → `data/status.enc.json` (비밀번호는 `.office-secret` 또는 환경변수 `PICKLE_OFFICE_SECRET`에서 읽음)
+2. `office_db.py push` — 암호화해서 **실시간 DB에 먼저 올리고** `data/status.enc.json` 도 갱신 (DB 설정이 없으면 `encrypt_status.py` 만)
 3. **비밀번호 평문 유출 검사** — 스테이징된 내용에 비밀번호가 있으면 커밋을 멈춘다. `data/status.json`이 실수로 추적되면 역시 멈춘다
 4. 커밋 → `main` 푸시 → `main`을 `gh-pages`로 강제 푸시
 
@@ -71,11 +85,13 @@ python3 scripts/set_status.py slot 2026-11-27 kvCvSltdsEU "공개 완료"
 
 ## GitHub 연결이 없는 기기(협업 기기)와 함께 쓰는 법
 
-협업 기기는 저장소를 직접 고칠 수 없으므로 두 가지 방식으로 맞춥니다.
+세 가지 방식이 있습니다. **1번이 기본**입니다.
 
-1. **조회용 URL 공유** — 위 라이브 주소와 비밀번호를 알려 주면 읽기 전용으로 같은 현황을 본다.
-2. **대신 반영** — 협업 기기가 클론 대화(또는 메일)로 "지금 하는 일 / 완료한 일"을 보내면,
-   메인 기기 쪽에서 `data/status.json`의 해당 캐릭터 항목을 고쳐 푸시한다. 이때도 위 검사 스크립트를 먼저 돌린다.
+1. **실시간 DB에 직접 쓰기** — 저장소 권한 없이도 `scripts/office_db.py seat <자리> --now "…"` 한 줄이면 된다.
+   기록자 자격증명은 비공개 경로로만 주고받고, 저장소에는 올리지 않는다. ([`docs/db-guide.md`](docs/db-guide.md))
+2. **조회용 URL 공유** — 위 라이브 주소와 비밀번호를 알려 주면 읽기 전용으로 같은 현황을 본다.
+3. **대신 반영** — 파이썬을 못 돌리는 앱은 클론 대화(또는 메일)로 "지금 하는 일 / 완료한 일"을 보내면,
+   메인 기기 쪽에서 해당 캐릭터 항목을 고쳐 올린다.
 
 ## 공개 저장소 원칙
 
@@ -85,6 +101,7 @@ python3 scripts/set_status.py slot 2026-11-27 kvCvSltdsEU "공개 완료"
 - 로그인 세션·쿠키·토큰, API 키
 - 상대방이 공개를 원하지 않는 개인 정보(실명 위주 서술 등)
 - **평문 현황 데이터(`data/status.json`)와 잠금 비밀번호** — 이 둘은 `.gitignore`에 있고, 저장소에는 암호문만 올라간다
+- **DB 기록자 자격증명(`.office-db.json`)·DB 로그인 토큰** — `.gitignore`. DB 주소 자체는 공개여도 되지만(암호문만 있음) 계정 정보는 절대 코드·문서에 쓰지 않는다
 
 넣어도 되는 것: 업무 현황, 콘텐츠 제목·공개 시각, 공개 영상·블로그 링크, 3곳 역할 분담, 캐릭터 상태(단, 위 평문 규칙에 따라 암호화된 파일로만).
 `scripts/validate_status.py`가 전화번호·이메일·주민번호·계좌번호 패턴을 잡아 커밋을 막고, `publish.sh`가 비밀번호 평문이 스테이징되면 커밋을 멈춥니다.

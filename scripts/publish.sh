@@ -16,8 +16,17 @@ MSG="${1:-status: 현황 갱신}"
 # 1) 평문 데이터 검사 (형식 + 개인정보 패턴)
 python3 scripts/validate_status.py
 
-# 2) 평문 → 암호문 (data/status.json → data/status.enc.json)
-python3 scripts/encrypt_status.py --quiet
+# 2) 평문 → 암호문 (data/status.json → data/status.enc.json) → 실시간 DB
+#    DB 기록자 설정(.office-db.json 또는 OFFICE_DB_WRITER)이 있으면 DB까지 같이 올린다.
+if [ -f .office-db.json ] || [ -n "${OFFICE_DB_WRITER:-}" ] || [ -n "${OFFICE_DB_API_KEY:-}" ]; then
+  python3 scripts/office_db.py push -m "$MSG" || {
+    echo "✗ DB 업로드에 실패했습니다. (저장소 반영은 보류) 먼저 'python3 scripts/office_db.py verify' 로 연결을 확인하세요."
+    exit 1
+  }
+else
+  python3 scripts/encrypt_status.py --quiet
+  echo "→ DB 기록자 설정이 없어 저장소(암호문)만 갱신합니다."
+fi
 
 # 3) 비밀번호 평문이 스테이징된 내용에 섞였는지 검사 — 값은 절대 출력하지 않는다
 SECRET="${PICKLE_OFFICE_SECRET:-}"
@@ -53,5 +62,5 @@ BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 git push origin main
 git push -f origin main:gh-pages
 
-echo "→ 푸시 완료. 1~2분 뒤 https://dmstjr9706-crypto.github.io/Pickle-office/ 에 반영됩니다."
+echo "→ 푸시 완료. DB는 이미 반영됐고(라이브 화면 수초 내 갱신), 저장소 사본은 1~2분 뒤 페이지에 반영됩니다."
 echo "  빌드 상태 확인: gh api repos/dmstjr9706-crypto/Pickle-office/pages --jq .status"

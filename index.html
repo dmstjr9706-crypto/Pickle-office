@@ -56,6 +56,17 @@
   .live strong{font-size:19px;font-weight:800;letter-spacing:.02em}
   .live .tz{font-size:10.5px;font-weight:700;color:var(--faint)}
   .live p{margin:0;font-size:11px;color:var(--faint)}
+  .live p#updated.flash{color:var(--ok);font-weight:700;transition:color .3s ease}
+  .srcline{margin-top:2px}
+  .srclive{
+    display:inline-flex;align-items:center;gap:4px;font-size:9.5px;font-weight:800;letter-spacing:.02em;
+    color:var(--faint);background:#F6F2EE;border:1px solid var(--line);border-radius:999px;padding:2px 7px;white-space:nowrap
+  }
+  .srclive::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.75}
+  .srclive.on{color:var(--ok);background:#EFF8F3;border-color:#D6EADD}
+  .srclive.warn{color:var(--wait);background:#FBF4E4;border-color:#F0E3C2}
+  .id-row span.dev em.presence{font-style:normal;font-weight:700;color:var(--faint);margin-left:6px}
+  .id-row span.dev em.presence.on{color:var(--ok)}
   .pulse{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(47,158,111,.5);animation:pulse 2.4s infinite}
   @keyframes pulse{70%{box-shadow:0 0 0 7px rgba(47,158,111,0)}100%{box-shadow:0 0 0 0 rgba(47,158,111,0)}}
 
@@ -341,6 +352,7 @@
     <div class="live">
       <div class="clockline"><span class="pulse" aria-hidden="true"></span><strong id="clock">--:--</strong><span class="tz">KST</span></div>
       <p id="updated">현황판 갱신 확인 중</p>
+      <p class="srcline"><span class="srclive" id="srclive">연결 확인 중</span></p>
       <button type="button" class="lockbtn" id="lock-btn" title="잠그기"><span aria-hidden="true">🔒</span> 잠그기</button>
     </div>
   </div>
@@ -371,9 +383,9 @@
 
 <footer>
   <div class="wrap">
-    <p><strong>갱신 방법</strong> — 이 페이지의 모든 내용은 암호화된 <code>data/status.enc.json</code> 하나에서 나옵니다. 평문 <code>data/status.json</code>은 로컬에만 두고 저장소에는 올리지 않습니다. 규칙은 저장소의 <a href="https://github.com/dmstjr9706-crypto/Pickle-office#현황-갱신-방법" target="_blank" rel="noopener">README</a>와 <code>docs/sync-guide.md</code>에 있습니다.</p>
+    <p><strong>갱신 방법</strong> — 이 페이지는 실시간 공용 DB에서 암호문을 받아 브라우저에서 풀어 그립니다. 세 곳의 비서가 각자 <code>scripts/office_db.py seat &lt;자리&gt; --now "…"</code>로 자기 자리를 바로 고치면 몇 초 안에 화면이 따라옵니다. DB가 막히면 저장소의 암호화 사본 <code>data/status.enc.json</code>을 대신 읽습니다. 규칙은 저장소의 <a href="https://github.com/dmstjr9706-crypto/Pickle-office#현황-갱신-방법" target="_blank" rel="noopener">README</a>와 <code>docs/sync-guide.md</code>, <code>docs/db-guide.md</code>에 있습니다.</p>
     <p><strong>공개 범위</strong> — 업무 현황과 콘텐츠 예약 정보만 담습니다. 연락처·주소·생년월일·계좌·비밀번호·이메일 같은 개인정보는 이 페이지에 저장하지 않습니다.</p>
-    <p><strong>보안</strong> — 현황 데이터는 PBKDF2-HMAC-SHA256 + AES-256-GCM으로 암호화되어 있고, 비밀번호는 저장소 어디에도 남지 않습니다. 화면은 비밀번호를 넣어야 열립니다.</p>
+    <p><strong>보안</strong> — 현황 데이터는 PBKDF2-HMAC-SHA256 + AES-256-GCM으로 암호화되어 DB에도 암호문만 저장됩니다. 비밀번호는 저장소 어디에도 남지 않고, 화면은 비밀번호를 넣어야 열립니다. DB 쓰기는 등록된 기록자 계정만 가능합니다.</p>
     <p>마지막 갱신 <span id="foot-updated">—</span> · <span id="foot-by">—</span></p>
   </div>
 </footer>
@@ -603,12 +615,15 @@
   function renderRooms(data) {
     $("#rooms").innerHTML = data.characters.map(function (c) {
       var idle = /대기|휴식|중지/.test(c.state || "");
+      var pl = presenceLabel(c.id);
       return "<article class='room' style='--c:" + c.color + ";--d:" + c.deep + "'>" +
         "<div class='room-visual'>" + roomSVG(c) + "</div>" +
         "<div class='room-body'>" +
           "<div class='id-row'>" +
             "<span class='mark'>" + esc(c.mark) + "</span>" +
-            "<div><h3>" + esc(c.name) + "</h3><span class='dev'>" + esc(c.device) + " · " + esc(c.role) + "</span></div>" +
+            "<div><h3>" + esc(c.name) + "</h3><span class='dev'>" + esc(c.device) + " · " + esc(c.role) +
+              (pl ? "<em class='presence" + (pl === "지금 연결" ? " on" : "") + "'>" + esc(pl) + "</em>" : "") +
+              "</span></div>" +
             "<span class='state" + (idle ? " idle" : "") + "'>" + esc(c.state) + "</span>" +
           "</div>" +
           "<p class='now'>" + esc(c.now) + "</p>" +
@@ -718,8 +733,17 @@
 
   /* ---------- crypto helpers ---------- */
   var ENC_URL = "data/status.enc.json";
+  // 실시간 공용 DB (Firebase Realtime Database) — 암호문만 오간다
+  var DB_BASE = "https://pickle-office-rtdb-default-rtdb.asia-southeast1.firebasedatabase.app/office";
+  var DB_STATUS = DB_BASE + "/status.json";
+  var DB_PRESENCE = DB_BASE + "/presence.json";
   var STORE = "pickle-office-key-v1";
-  var encMeta = null;
+  var encMeta = null;          // 지금 화면이 쓰는 암호문 봉투
+  var encSource = "file";      // "db" | "file"
+  var liveKey = null;          // 열린 뒤에만 생긴다 (SSE 로 새 현황을 풀 때 씀)
+  var liveSource = null;
+  var presence = {};
+  var lastData = null;
 
   function subtle() {
     if (!(window.crypto && window.crypto.subtle)) {
@@ -755,16 +779,95 @@
       return JSON.parse(new TextDecoder().decode(buf));
     });
   }
+  function isEnc(meta) {
+    return !!(meta && meta.salt && meta.iv && meta.ciphertext);
+  }
+  function fetchEnc(url) {
+    return fetch(url + (url.indexOf("?") < 0 ? "?" : "&") + "v=" + Date.now(), { cache: "no-store" })
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      }).then(function (meta) {
+        if (!isEnc(meta)) throw new Error("암호문 형식이 아닙니다");
+        return meta;
+      });
+  }
   function loadEnc() {
-    return fetch(ENC_URL + "?v=" + Date.now(), { cache: "no-store" }).then(function (r) {
-      if (!r.ok) throw new Error("HTTP " + r.status);
-      return r.json();
-    }).then(function (meta) {
-      if (!meta || !meta.salt || !meta.iv || !meta.ciphertext) {
-        throw new Error("암호문 형식이 아닙니다");
-      }
+    // 1순위: 실시간 DB, 2순위: 저장소의 data/status.enc.json (DB가 막혔을 때)
+    return fetchEnc(DB_STATUS).then(function (meta) {
+      encSource = "db";
       return meta;
+    }).catch(function () {
+      return fetchEnc(ENC_URL).then(function (meta) {
+        encSource = "file";
+        return meta;
+      });
     });
+  }
+  function setSrc(label, cls) {
+    var el = $("#srclive");
+    if (!el) return;
+    el.textContent = label;
+    el.className = "srclive" + (cls ? " " + cls : "");
+  }
+  function startLive() {
+    if (liveSource || encSource !== "db" || !window.EventSource) return;
+    try {
+      liveSource = new EventSource(DB_STATUS);
+      liveSource.addEventListener("open", function () {
+        setSrc(liveKey ? "실시간 연결" : "DB 연결", "on");
+      });
+      liveSource.addEventListener("put", function (ev) {
+        var msg;
+        try { msg = JSON.parse(ev.data); } catch (e) { return; }
+        var meta = msg && msg.data;
+        if (!isEnc(meta)) return;                    // 노드가 비었거나 형식이 다르면 무시
+        if (!liveKey) return;                        // 아직 잠금 — 열 때 최신 것을 받는다
+        if (encMeta && meta.ciphertext === encMeta.ciphertext) return;
+        applyLive(meta);
+      });
+      liveSource.addEventListener("error", function () {
+        setSrc("다시 연결 중…", "warn");
+      });
+    } catch (e) { /* EventSource 를 못 쓰는 환경 — 파일 모드로 둔다 */ }
+  }
+  function applyLive(meta) {
+    var prev = encMeta;
+    encMeta = meta;
+    decryptWith(liveKey).then(function (data) {
+      renderAll(data);
+      var el = $("#updated");
+      if (el) { el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
+    }).catch(function () {
+      encMeta = prev;                                // salt 가 바뀐 경우 등 — 화면 유지
+    });
+  }
+  function resync() {
+    if (encSource !== "db") return;
+    fetchEnc(DB_STATUS).then(function (meta) {
+      if (!liveKey || (encMeta && meta.ciphertext === encMeta.ciphertext)) return;
+      applyLive(meta);
+    }).catch(function () { /* 다음 실시간 이벤트에 맡긴다 */ });
+  }
+  function loadPresence() {
+    if (encSource !== "db") return;
+    fetch(DB_PRESENCE + "?v=" + Date.now(), { cache: "no-store" }).then(function (r) {
+      return r.ok ? r.json() : null;
+    }).then(function (p) {
+      if (!p || typeof p !== "object") return;
+      presence = p;
+      if (lastData) renderRooms(lastData);
+    }).catch(function () { /* 접속 표시는 없어도 된다 */ });
+  }
+  function presenceLabel(id) {
+    var p = presence[id];
+    if (!p || !p.at) return "";
+    var m = Math.round((Date.now() - Number(p.at)) / 60000);
+    if (m < 0) m = 0;
+    if (m <= 4) return "지금 연결";
+    if (m < 60) return m + "분 전 연결";
+    if (m < 720) return Math.round(m / 60) + "시간 전 연결";
+    return "오프라인";
   }
   function savedKey() {
     try { return JSON.parse(localStorage.getItem(STORE) || "null"); } catch (e) { return null; }
@@ -775,6 +878,7 @@
 
   /* ---------- lock / unlock ---------- */
   function renderAll(data) {
+    lastData = data;
     $("#headline").textContent = data.headline || "";
     renderRooms(data);
     $("#board").innerHTML = renderYoutube(data) + renderPublishing(data) + renderCampaigns(data) + renderTimeline(data);
@@ -832,6 +936,10 @@
       })
       .then(function (r) {
         $("#lock-pw").value = "";
+        liveKey = r.key;
+        startLive();
+        loadPresence();
+        resync();
         if (remember) {
           return subtle().exportKey("raw", r.key).then(function (raw) {
             try {
@@ -872,6 +980,7 @@
 
   $("#lock-btn").addEventListener("click", function () {
     forget();
+    liveKey = null;
     $("#lock-pw").value = "";
     $("#lock-remember").checked = false;
     $("#lock-foot").textContent = "잠갔어요. 다시 비밀번호를 넣어 주세요.";
@@ -886,6 +995,12 @@
   loadEnc().then(function (meta) {
     encMeta = meta;
     setBusy(false);
+    setSrc(encSource === "db" ? "DB 연결" : "파일 모드", encSource === "db" ? "on" : "");
+    if (encSource === "db") {
+      startLive();
+      loadPresence();
+      setInterval(loadPresence, 60000);
+    }
     var saved = savedKey();
     if (!saved || !saved.key || saved.salt !== meta.salt || Number(saved.iterations) !== Number(meta.iterations)) {
       $("#lock-pw").focus();
@@ -895,9 +1010,13 @@
     $("#lock-sub").textContent = "기억한 열쇠로 여는 중…";
     setBusy(true);
     subtle().importKey("raw", b64ToBytes(saved.key), { name: "AES-GCM" }, false, ["decrypt"])
-      .then(decryptWith)
+      .then(function (key) {
+        liveKey = key;
+        return decryptWith(key);
+      })
       .then(showApp)
       .catch(function () {
+        liveKey = null;
         forget();
         $("#lock-sub").innerHTML = LOCK_SUB;
         $("#lock-foot").textContent = "현황 데이터는 암호화되어 있습니다";

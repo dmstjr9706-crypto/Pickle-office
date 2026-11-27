@@ -4,7 +4,12 @@
 화면(`index.html`)은 암호화된 `data/status.enc.json`만 읽으므로, 데이터 형식만 지키면 디자인을 건드릴 필요가 없습니다.
 
 > **평문은 로컬에만** — `data/status.json`은 `.gitignore`에 있어 저장소에 올라가지 않습니다.
-> 올릴 때는 `./scripts/publish.sh`가 검사 → 암호화 → 커밋 → 푸시를 한 번에 합니다. 수동으로 올리지 마세요.
+> 올릴 때는 `./scripts/publish.sh`가 검사 → 암호화 → DB 업로드 → 커밋 → 푸시를 한 번에 합니다. 수동으로 올리지 마세요.
+>
+> **라이브 소스는 이제 실시간 DB** — 페이지는 Firebase Realtime Database의 암호문을 먼저 읽고,
+> 실패하면 이 저장소의 `data/status.enc.json`을 대신 읽습니다. 남의 자리 한 줄만 바꿀 때는
+> `python3 scripts/office_db.py seat <chuchu|haram|keyring> --now "…"` 가 가장 빠릅니다
+> (저장소 권한 없이도 되고, 수 초 안에 화면이 바뀝니다). 구조와 보안 규칙은 [`db-guide.md`](db-guide.md).
 
 ---
 
