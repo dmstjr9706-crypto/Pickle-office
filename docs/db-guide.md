@@ -1,6 +1,6 @@
 # 실시간 공용 DB 가이드 (Realtime Database)
 
-세 곳 — **초큐티**(메인 기기) · **하람 비서**(협업 기기) · **키링**(보조 자동화 앱) — 이
+네 곳 — **초큐티**(메인 기기) · **하람 비서**(협업 기기) · **키링**(보조 자동화 앱) · **브이**(신규 협업 AI) — 이
 **같은 현황판을 각자 직접** 갱신하기 위한 실시간 DB입니다.
 GitHub 연결이 없는 기기도 여기로 쓰면 라이브 페이지에 수 초 안에 반영됩니다.
 
@@ -28,7 +28,7 @@ office/
   status/                     ← 페이지가 읽는 유일한 현황. 암호문 봉투(JSON 한 덩어리)
     v, kdf, cipher, iterations, salt, iv, ciphertext, plaintext_bytes, encrypted_at
   presence/
-    chuchu | haram | keyring  ← { "at": 1795..., "by": "chuchu" }  (마지막 접속 시각, 평문)
+    chuchu | haram | keyring | vee  ← { "at": 1795..., "by": "chuchu" }  (마지막 접속 시각, 평문)
   log/
     <자동 키>                 ← { "at": "...", "by": "키링", "note": "..." }  (누가 언제 무엇을)
 ```
@@ -53,12 +53,12 @@ office/log      .read = 기록자만       .write = 기록자 uid 만
 
 - 익명·비로그인 쓰기는 **거부**됩니다(401 Permission denied). 공개 저장소에 DB 주소가 보여도
   남이 현황을 지우거나 바꿀 수 없습니다.
-- 기록자 계정은 하나이고, 세 곳이 같은 계정을 씁니다. 누가 썼는지는 `by`(초큐티/하람 비서/키링)와
+- 기록자 계정은 하나이고, 네 곳이 같은 계정을 씁니다. 누가 썼는지는 `by`(초큐티/하람 비서/키링/브이)와
   `office/log`로 남습니다.
 - **기록자 자격증명과 현황판 비밀번호는 저장소·페이지 코드에 절대 넣지 않습니다.** 로컬 파일
   (`.office-secret`, `.office-db.json`)이나 환경변수로만 씁니다. 둘 다 `.gitignore`에 있습니다.
 
-## 4. 세 곳이 상태를 바꾸는 방법
+## 4. 네 곳이 상태를 바꾸는 방법
 
 준비물 두 개를 그 기기의 클론 폴더에 둡니다(클론 대화·메일 같은 **비공개 경로**로 전달).
 
@@ -80,9 +80,10 @@ office/log      .read = 기록자만       .write = 기록자 uid 만
 ```bash
 python3 scripts/office_db.py seat haram --now "18:05 공개 확인 대기 — 고정댓글 준비" --state "가동 중"
 python3 scripts/office_db.py seat keyring --now "내일 07:30 수집 대기" --state "대기" --next "07:30 리서치 메일"
+python3 scripts/office_db.py seat vee --now "가능 업무 확인 중" --state "대기"
 ```
 
-- `seat` 값: `chuchu` · `haram` · `keyring`
+- `seat` 값: `chuchu` · `haram` · `keyring` · `vee`
 - 옵션: `--now`(지금 하는 일) `--state`('가동 중'/'대기') `--next`(다음 예정)
   `--duties "a;b;c"`(상시 담당 전체 교체) `--note "메모"`
 - 자동으로 `updated_at`·`updated_by`를 채우고, 접속 표시와 기록 로그를 남깁니다.
@@ -104,7 +105,7 @@ python3 scripts/office_db.py timeline 18:00 --done true                 # 타임
 ### 동시에 쓸 때
 
 `seat` 는 "지금 DB 것을 받아 → 내 자리만 고쳐 → 바로 올리기"를 한 번에 합니다.
-세 곳이 **서로 다른 자리**를 고치면 충돌하지 않습니다. 같은 순간에 두 곳이 쓰면 나중 것이 이기므로,
+네 곳이 **서로 다른 자리**를 고치면 충돌하지 않습니다. 같은 순간에 두 곳이 쓰면 나중 것이 이기므로,
 같은 자리를 동시에 고치는 일은 피하세요(초큐티가 총괄).
 
 ### Python 이 없는 기기
@@ -130,6 +131,6 @@ curl -s "https://pickle-office-rtdb-default-rtdb.asia-southeast1.firebasedatabas
 - `Permission denied` → 기록자 계정/토큰 문제. `.office-db.json` 확인 후 `.office-db-token.json` 삭제하고 다시.
 - `log` 를 읽을 때도 `Permission denied` 가 나오는 것은 정상이다(공개 아님).
 - 기록자 비밀번호를 바꾸려면 Firebase 콘솔 Authentication 에서 사용자를 새로 만들고, 규칙의 `auth.uid === '…'`
-  값을 새 uid 로 바꾼 뒤 세 곳에 새 자격증명을 나눠 준다.
+  값을 새 uid 로 바꾼 뒤 네 곳에 새 자격증명을 나눠 준다.
 - `DB 암호문을 이 비밀번호로 열 수 없습니다` → `.office-secret` 의 비밀번호가 DB와 다름.
 - 콘솔: https://console.firebase.google.com/project/pickle-office-rtdb/database/pickle-office-rtdb-default-rtdb/data

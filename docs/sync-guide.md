@@ -8,7 +8,7 @@
 >
 > **라이브 소스는 이제 실시간 DB** — 페이지는 Firebase Realtime Database의 암호문을 먼저 읽고,
 > 실패하면 이 저장소의 `data/status.enc.json`을 대신 읽습니다. 남의 자리 한 줄만 바꿀 때는
-> `python3 scripts/office_db.py seat <chuchu|haram|keyring> --now "…"` 가 가장 빠릅니다
+> `python3 scripts/office_db.py seat <chuchu|haram|keyring|vee> --now "…"` 가 가장 빠릅니다
 > (저장소 권한 없이도 되고, 수 초 안에 화면이 바뀝니다). 구조와 보안 규칙은 [`db-guide.md`](db-guide.md).
 
 ---
@@ -45,7 +45,7 @@ python3 scripts/validate_status.py && python3 scripts/encrypt_status.py \
 
 ```json
 {
-  "id": "chuchu",            // 고정값: chuchu | haram | keyring (그림이 id로 갈린다)
+  "id": "chuchu",            // 고정값: chuchu | haram | keyring | vee (그림이 id로 갈린다)
   "name": "초큐티",
   "mark": "ㅊ",              // 이름표 배지 글자
   "color": "#F7A8C0",        // 방 색 (SVG 벽·조명·가구 색이 여기서 파생)
@@ -60,7 +60,7 @@ python3 scripts/validate_status.py && python3 scripts/encrypt_status.py \
 ```
 
 - `now`는 **현재 시제 한 줄**. 길면 카드가 길어지므로 45자 안쪽을 권장한다.
-- 담당이 바뀌면 `duties`를 고치고, 3곳이 겹치지 않는지 확인한다(같은 일을 두 곳이 하면 현황판이 거짓말이 된다).
+- 담당이 바뀌면 `duties`를 고치고, 네 곳이 겹치지 않는지 확인한다(같은 일을 두 곳이 하면 현황판이 거짓말이 된다).
 - 일이 끝나 대기 상태면 `state`를 `대기`로.
 
 ### `youtube[]` — 18:00 예약 현황
@@ -154,6 +154,6 @@ python3 scripts/validate_status.py && python3 scripts/encrypt_status.py \
 
 ## 5. 손대지 말 것
 
-- `characters[].id` 값(`chuchu`/`haram`/`keyring`) — 그림 분기 키다.
+- `characters[].id` 값(`chuchu`/`haram`/`keyring`/`vee`) — 그림 분기 키다.
 - `index.html`의 `render*` 함수가 읽는 키 이름 — 이름을 바꾸면 화면이 비어 버린다.
   항목을 늘리는 것은 배열에 원소를 추가하는 방식으로만 한다.

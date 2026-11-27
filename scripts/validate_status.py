@@ -21,7 +21,7 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = ROOT / "data" / "status.json"
 
-CHAR_IDS = {"chuchu", "haram", "keyring"}
+CHAR_IDS = {"chuchu", "haram", "keyring", "vee"}
 STATUS_WORDS = {"발행 완료", "예약", "예정", "진행 중", "공개 완료", "대기"}
 
 # 공개 저장소에 올리면 안 되는 패턴 -------------------------------------------------
@@ -63,8 +63,8 @@ def check_schema(d: dict) -> list[str]:
         errs.append("updated_at 이 ISO 8601 형식이 아님 (예: 2026-11-27T14:30:00+09:00)")
 
     chars = d["characters"]
-    if not isinstance(chars, list) or len(chars) != 3:
-        errs.append("characters 는 3개여야 함")
+    if not isinstance(chars, list) or len(chars) != 4:
+        errs.append("characters 는 4개여야 함 (chuchu·haram·keyring·vee)")
     else:
         seen = set()
         for i, c in enumerate(chars):
@@ -72,7 +72,7 @@ def check_schema(d: dict) -> list[str]:
                 if k not in c:
                     errs.append(f"characters[{i}] 에 '{k}' 없음")
             if c.get("id") not in CHAR_IDS:
-                errs.append(f"characters[{i}].id '{c.get('id')}' 는 chuchu/haram/keyring 중 하나여야 함")
+                errs.append(f"characters[{i}].id '{c.get('id')}' 는 chuchu/haram/keyring/vee 중 하나여야 함")
             if c.get("id") in seen:
                 errs.append(f"characters[{i}].id 중복: {c.get('id')}")
             seen.add(c.get("id"))

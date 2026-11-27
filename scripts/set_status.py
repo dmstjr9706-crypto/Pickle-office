@@ -37,7 +37,7 @@ def find_char(d: dict, key: str) -> dict:
     for c in d["characters"]:
         if c["id"] == key or c["name"] == key:
             return c
-    raise SystemExit(f"캐릭터를 찾을 수 없습니다: {key} (chuchu/haram/keyring 또는 이름)")
+    raise SystemExit(f"캐릭터를 찾을 수 없습니다: {key} (chuchu/haram/keyring/vee 또는 이름)")
 
 
 def main() -> int:

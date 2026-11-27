@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#FBF7F2">
-<title>피클 합동 비서실 · 3곳 자동화 현황판</title>
-<meta name="description" content="세 곳의 AI 비서가 같은 사무실에서 지금 무엇을 하고 있는지 한눈에 보는 오피스 맵과 현황판.">
+<title>피클 합동 비서실 · 네 식구 현황판</title>
+<meta name="description" content="네 명의 AI 비서가 같은 사무실에서 지금 무엇을 하고 있는지 한눈에 보는 오피스 맵과 현황판.">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -129,7 +129,14 @@
   }
   .seats{display:grid;grid-template-columns:1fr;gap:2px;padding:0 12px;position:relative;z-index:2}
   @media(min-width:700px){
-    .seats{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 18px;padding:2px 20px 0;align-items:end}
+    .seats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px;padding:2px 20px 0;align-items:end}
+    .bubble{min-height:88px}
+    .duties{min-height:66px}
+  }
+  @media(min-width:1020px){
+    .seats{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px 15px}
+    .bubble{min-height:96px}
+    .bnow{font-size:12px}
   }
   .seat{position:relative;min-width:0}
 
@@ -193,9 +200,10 @@
     .seat:first-child{border-top:0;padding-top:2px}
     .seat .figure{grid-area:fig;align-self:end;margin:0}
     .seat .plate{grid-area:plate;margin:0}
-    .seat .bubble{grid-area:bubble;margin:0;align-self:stretch}
+    .seat .bubble{grid-area:bubble;margin:0;align-self:stretch;padding:8px 10px 9px}
     .seat .bubble::after{top:14px}
-    .seat .bnow{-webkit-line-clamp:4;font-size:12px}
+    .seat .bnow{-webkit-line-clamp:3;font-size:12px}
+    .seat{padding:7px 0 9px}
     .seat .bnext{font-size:10.5px}
     .seat .duties{display:none}
     .figure svg{max-height:112px}
@@ -394,7 +402,7 @@
     </div>
     <p class="lock-kicker">PICKLE JOINT OFFICE</p>
     <h1 class="lock-title">피클 합동 비서실</h1>
-    <p class="lock-sub" id="lock-sub">비서 셋만 들어올 수 있어요.<br>비밀번호를 넣어 주세요.</p>
+    <p class="lock-sub" id="lock-sub">비서 넷만 들어올 수 있어요.<br>비밀번호를 넣어 주세요.</p>
     <form id="lock-form">
       <div class="lock-field">
         <input id="lock-pw" type="password" autocomplete="current-password" placeholder="비밀번호" aria-label="비밀번호" disabled>
@@ -436,7 +444,7 @@
     <div class="office-head">
       <span class="tag">OFFICE MAP</span>
       <h2 id="office-title">합동 비서실</h2>
-      <p>세 비서가 한 사무실, 각자 자리에서 일하고 있어요</p>
+      <p>네 비서가 한 사무실, 각자 자리에서 일하고 있어요</p>
     </div>
 
     <div class="room">
@@ -530,34 +538,39 @@
             <rect x="214" y="70" width="14" height="29" rx="3" fill="#B0854F"/>
             <rect x="672" y="70" width="14" height="29" rx="3" fill="#B0854F"/>
             <g>
-              <rect x="322" y="28" width="26" height="24" rx="5" fill="#F7C6D4"/>
-              <path d="M348 33 q10 0 10 7 q0 7 -10 7" fill="none" stroke="#E39CB0" stroke-width="2.4"/>
-              <text x="335" y="45" text-anchor="middle" font-size="12" font-weight="800" fill="#B2455C">ㅊ</text>
+              <rect x="290" y="28" width="26" height="24" rx="5" fill="#F7C6D4"/>
+              <path d="M316 33 q10 0 10 7 q0 7 -10 7" fill="none" stroke="#E39CB0" stroke-width="2.4"/>
+              <text x="303" y="45" text-anchor="middle" font-size="12" font-weight="800" fill="#B2455C">ㅊ</text>
             </g>
             <g>
-              <rect x="360" y="30" width="26" height="22" rx="5" fill="#CDEBDD"/>
-              <path d="M386 35 q10 0 10 6.5 q0 6.5 -10 6.5" fill="none" stroke="#7CC3A8" stroke-width="2.4"/>
-              <text x="373" y="46" text-anchor="middle" font-size="11" font-weight="800" fill="#2F7A63">ㅎ</text>
+              <rect x="326" y="30" width="26" height="22" rx="5" fill="#CDEBDD"/>
+              <path d="M352 35 q10 0 10 6.5 q0 6.5 -10 6.5" fill="none" stroke="#7CC3A8" stroke-width="2.4"/>
+              <text x="339" y="46" text-anchor="middle" font-size="11" font-weight="800" fill="#2F7A63">ㅎ</text>
             </g>
             <g>
-              <ellipse cx="470" cy="46" rx="34" ry="8" fill="#FFFFFF" stroke="#EADFD1" stroke-width="2"/>
-              <circle cx="458" cy="41" r="6" fill="#E3B57F"/>
-              <circle cx="472" cy="39" r="6" fill="#D9A76E"/>
-              <circle cx="484" cy="42" r="5.5" fill="#E3B57F"/>
+              <ellipse cx="425" cy="46" rx="34" ry="8" fill="#FFFFFF" stroke="#EADFD1" stroke-width="2"/>
+              <circle cx="413" cy="41" r="6" fill="#E3B57F"/>
+              <circle cx="427" cy="39" r="6" fill="#D9A76E"/>
+              <circle cx="439" cy="42" r="5.5" fill="#E3B57F"/>
             </g>
             <g>
-              <path d="M552 24 h40 v26 a6 6 0 0 1 -6 6 h-28 a6 6 0 0 1 -6 -6 z" fill="#E9EDF1" stroke="#C9D1D8" stroke-width="2"/>
-              <path d="M592 30 q10 4 0 14" fill="none" stroke="#C9D1D8" stroke-width="2.4"/>
-              <rect x="552" y="19" width="40" height="6" rx="3" fill="#B7C2CC"/>
+              <rect x="486" y="28" width="26" height="24" rx="5" fill="#DDE4FE"/>
+              <path d="M512 33 q10 0 10 7 q0 7 -10 7" fill="none" stroke="#9FB4F8" stroke-width="2.4"/>
+              <text x="499" y="45" text-anchor="middle" font-size="12" font-weight="800" fill="#4F5BD5">V</text>
             </g>
             <g>
-              <rect x="636" y="30" width="28" height="22" rx="5" fill="#FFE1E9"/>
-              <path d="M664 35 q10 0 10 6.5 q0 6.5 -10 6.5" fill="none" stroke="#EEAFC1" stroke-width="2.4"/>
-              <text x="650" y="46" text-anchor="middle" font-size="11" font-weight="800" fill="#B2455C">K</text>
+              <path d="M536 24 h40 v26 a6 6 0 0 1 -6 6 h-28 a6 6 0 0 1 -6 -6 z" fill="#E9EDF1" stroke="#C9D1D8" stroke-width="2"/>
+              <path d="M576 30 q10 4 0 14" fill="none" stroke="#C9D1D8" stroke-width="2.4"/>
+              <rect x="536" y="19" width="40" height="6" rx="3" fill="#B7C2CC"/>
             </g>
-            <path d="M714 52 h18 l-2.5 8 h-13 z" fill="#E9B98F"/>
-            <path d="M723 52 q-10 -14 -17 -7 q9 0 15 7" fill="#7FBF9A"/>
-            <path d="M723 52 q10 -13 17 -6 q-8 0 -14 7" fill="#A3D6B5"/>
+            <g>
+              <rect x="612" y="30" width="28" height="22" rx="5" fill="#FFE1E9"/>
+              <path d="M640 35 q10 0 10 6.5 q0 6.5 -10 6.5" fill="none" stroke="#EEAFC1" stroke-width="2.4"/>
+              <text x="626" y="46" text-anchor="middle" font-size="11" font-weight="800" fill="#B2455C">K</text>
+            </g>
+            <path d="M684 52 h18 l-2.5 8 h-13 z" fill="#E9B98F"/>
+            <path d="M693 52 q-10 -14 -17 -7 q9 0 15 7" fill="#7FBF9A"/>
+            <path d="M693 52 q10 -13 17 -6 q-8 0 -14 7" fill="#A3D6B5"/>
           </svg>
           <span class="shared-cap">공용 회의 테이블 · 커피와 간식은 여기</span>
         </div>
@@ -578,7 +591,7 @@
 
 <footer>
   <div class="wrap">
-    <p><strong>갱신 방법</strong> — 이 페이지는 실시간 공용 DB에서 암호문을 받아 브라우저에서 풀어 그립니다. 세 곳의 비서가 각자 <code>scripts/office_db.py seat &lt;자리&gt; --now "…"</code>로 자기 자리를 바로 고치면 몇 초 안에 화면이 따라옵니다. DB가 막히면 저장소의 암호화 사본 <code>data/status.enc.json</code>을 대신 읽습니다. 규칙은 저장소의 <a href="https://github.com/dmstjr9706-crypto/Pickle-office#현황-갱신-방법" target="_blank" rel="noopener">README</a>와 <code>docs/sync-guide.md</code>, <code>docs/db-guide.md</code>에 있습니다.</p>
+    <p><strong>갱신 방법</strong> — 이 페이지는 실시간 공용 DB에서 암호문을 받아 브라우저에서 풀어 그립니다. 네 비서가 각자 <code>scripts/office_db.py seat &lt;자리&gt; --now "…"</code>로 자기 자리를 바로 고치면 몇 초 안에 화면이 따라옵니다. DB가 막히면 저장소의 암호화 사본 <code>data/status.enc.json</code>을 대신 읽습니다. 규칙은 저장소의 <a href="https://github.com/dmstjr9706-crypto/Pickle-office#현황-갱신-방법" target="_blank" rel="noopener">README</a>와 <code>docs/sync-guide.md</code>, <code>docs/db-guide.md</code>에 있습니다.</p>
     <p><strong>공개 범위</strong> — 업무 현황과 콘텐츠 예약 정보만 담습니다. 연락처·주소·생년월일·계좌·비밀번호·이메일 같은 개인정보는 이 페이지에 저장하지 않습니다.</p>
     <p><strong>보안</strong> — 현황 데이터는 PBKDF2-HMAC-SHA256 + AES-256-GCM으로 암호화되어 DB에도 암호문만 저장됩니다. 비밀번호는 저장소 어디에도 남지 않고, 화면은 비밀번호를 넣어야 열립니다. DB 쓰기는 등록된 기록자 계정만 가능합니다.</p>
     <p>마지막 갱신 <span id="foot-updated">—</span> · <span id="foot-by">—</span></p>
@@ -654,6 +667,19 @@
         "<path d='M140 100 q7 7 -6 9' fill='none' stroke='" + deep + "' stroke-width='2.4' stroke-linecap='round'/>" +
         "<circle cx='110' cy='132' r='11.5' fill='#FFFFFF' opacity='.95'/>" +
         "<text x='110' y='136.5' text-anchor='middle' font-size='12.5' font-weight='800' fill='" + deep + "'>ㅎ</text>";
+    } else if (c.id === "vee") {
+      /* 브이 — 블루/바이올렛 피클 + 반짝 안테나 */
+      body =
+        "<path d='M110 56 V42' stroke='" + deep + "' stroke-width='2.6' stroke-linecap='round'/>" +
+        "<path d='M110 24 l3.6 7.6 7.6 3.6 -7.6 3.6 -3.6 7.6 -3.6 -7.6 -7.6 -3.6 7.6 -3.6 z' fill='#FFFFFF' stroke='" + deep + "' stroke-width='2' stroke-linejoin='round'/>" +
+        "<rect x='77' y='54' width='66' height='100' rx='33' fill='" + col + "'/>" +
+        "<ellipse cx='110' cy='151' rx='33' ry='17' fill='" + deep + "' opacity='.14'/>" +
+        "<ellipse cx='88' cy='103' rx='5.5' ry='3.4' fill='" + deep + "' opacity='.22'/>" +
+        "<ellipse cx='132' cy='103' rx='5.5' ry='3.4' fill='" + deep + "' opacity='.22'/>" +
+        headFace(c, "<g class='eyes'><ellipse cx='97' cy='91' rx='4.5' ry='5.3' fill='#3A2F3C'/><ellipse cx='123' cy='91' rx='4.5' ry='5.3' fill='#3A2F3C'/></g>") +
+        "<path d='M74 94 l2 4.4 4.4 2 -4.4 2 -2 4.4 -2 -4.4 -4.4 -2 4.4 -2 z' fill='#FFFFFF' opacity='.8'/>" +
+        "<circle cx='110' cy='132' r='11.5' fill='#FFFFFF' opacity='.95'/>" +
+        "<text x='110' y='136.5' text-anchor='middle' font-size='12.5' font-weight='800' fill='" + deep + "'>V</text>";
     } else {
       /* 키링 — 분홍 토끼 + 안경 */
       body =
@@ -1040,10 +1066,10 @@
     $("#updated").textContent = "현황판 갱신 확인 중";
     $("#foot-updated").textContent = "—";
     $("#foot-by").textContent = "—";
-    document.title = "피클 합동 비서실 · 3곳 자동화 현황판";
+    document.title = "피클 합동 비서실 · 네 식구 현황판";
   }
 
-  var LOCK_SUB = "비서 셋만 들어올 수 있어요.<br>비밀번호를 넣어 주세요.";
+  var LOCK_SUB = "비서 넷만 들어올 수 있어요.<br>비밀번호를 넣어 주세요.";
 
   function showLock(msg) {
     clearApp();

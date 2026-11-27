@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """합동 비서실 실시간 DB 동기화 (Firebase Realtime Database)
 
-세 곳(초큐티·하람 비서·키링)이 **같은 현황판을 직접** 갱신한다.
+네 곳(초큐티·하람 비서·키링·브이)이 **같은 현황판을 직접** 갱신한다.
 
 - DB에는 **암호문만** 오간다. `data/status.enc.json`과 똑같은 형식
   (PBKDF2-HMAC-SHA256 60만 회 → AES-256-GCM). 비밀번호 없이는 못 읽는다.
@@ -20,6 +20,7 @@
     python3 scripts/office_db.py pull
     python3 scripts/office_db.py seat haram --now "18:05 공개 확인 대기" --state "가동 중"
     python3 scripts/office_db.py seat keyring --now "내일 07:30 수집 대기" --state "대기"
+    python3 scripts/office_db.py seat vee --now "가능 업무 확인 중" --state "대기"
     python3 scripts/office_db.py push -m "손으로 고친 status.json 올리기"
     python3 scripts/office_db.py presence chuchu
     python3 scripts/office_db.py timeline 18:00 --done true
@@ -55,7 +56,7 @@ LOCAL_JSON = ROOT / "data" / "status.json"
 LOCAL_ENC = ROOT / "data" / "status.enc.json"
 VALIDATE = HERE / "validate_status.py"
 
-SEATS = {"chuchu": "초큐티", "haram": "하람 비서", "keyring": "키링"}
+SEATS = {"chuchu": "초큐티", "haram": "하람 비서", "keyring": "키링", "vee": "브이"}
 KST = dt.timezone(dt.timedelta(hours=9))
 
 
@@ -280,7 +281,7 @@ def cmd_verify(args) -> int:
     print(f"✓ 현황     {payload.get('updated_at')} · {payload.get('updated_by')} 기록 · {payload.get('headline','')[:40]}")
     print(f"✓ 암호화   {meta.get('encrypted_at')} · {meta.get('cipher')} · PBKDF2 {int(meta.get('iterations', 0)):,}회")
     pres = db(cfg, "office/presence") or {}
-    for seat in ("chuchu", "haram", "keyring"):
+    for seat in SEATS:
         p = pres.get(seat)
         if isinstance(p, dict) and p.get("at"):
             ago = int((time.time() * 1000 - float(p["at"])) / 60000)
