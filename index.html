@@ -393,9 +393,9 @@
   @keyframes blink{0%,93.5%,100%{transform:scaleY(1)}95.2%{transform:scaleY(.08)}97%{transform:scaleY(1)}}
   .hands{transform-box:fill-box;animation:type .9s ease-in-out infinite alternate}
   @keyframes type{from{transform:translateY(0)}to{transform:translateY(-1.6px)}}
-  .seat:not(.live) .hands{animation:none}
+  .seat:not(.busy) .hands{animation:none}
   .glow{opacity:.1}
-  .seat.live .glow{animation:glow 4.2s ease-in-out infinite}
+  .seat.busy .glow{animation:glow 4.2s ease-in-out infinite}
   @keyframes glow{0%,100%{opacity:.16}50%{opacity:.42}}
   .steam{transform-box:fill-box;transform-origin:bottom center;animation:steam 3.6s ease-in-out infinite}
   @keyframes steam{0%{opacity:0;transform:translateY(1px) scale(.9)}35%{opacity:.6}100%{opacity:0;transform:translateY(-7px) scale(1.15)}}
@@ -783,7 +783,7 @@
     $("#seats").innerHTML = (data.characters || []).map(function (c) {
       var idle = /대기|휴식|중지|오프라인/.test(c.state || "");
       var pl = presenceLabel(c.id);
-      return "<article class='seat" + (idle ? "" : " live") + "' style='--c:" + esc(c.color) + ";--d:" + esc(c.deep) + "'>" +
+      return "<article class='seat" + (idle ? "" : " busy") + "' style='--c:" + esc(c.color) + ";--d:" + esc(c.deep) + "'>" +
         "<p class='bubble'>" +
           "<span class='bnow'>" + esc(c.now) + "</span>" +
           (c.next ? "<span class='bnext'>" + esc(c.next) + "</span>" : "") +
