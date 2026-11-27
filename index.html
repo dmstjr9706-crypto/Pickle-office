@@ -194,30 +194,38 @@
   .duties li::before{content:"";position:absolute;left:1px;top:5.5px;width:4px;height:4px;border-radius:50%;background:var(--c)}
 
   @media(max-width:699px){
+    .office{padding:11px 0 2px}
+    .office-head{margin-bottom:8px}
+    .office-head h2{font-size:15px}
+    .office-head p{display:none}
+    .room{border-radius:20px}
+    .wall{padding:8px 10px 0}
+    .wall::after{height:7px;margin-top:6px}
+    .deco svg{height:42px}
+    .deco .d-lamp{height:52px}
+    .floor{padding-top:6px}
+    .seats{padding:0 10px}
     .seat{
       display:grid;grid-template-columns:92px minmax(0,1fr);
       grid-template-areas:"plate plate" "fig bubble";
-      gap:5px 8px;align-items:start;padding:6px 0 8px;
+      gap:4px 8px;align-items:start;padding:5px 0 6px;
       border-top:1px dashed rgba(190,150,105,.38)
     }
     .seat:first-child{border-top:0;padding-top:2px}
     .seat .figure{grid-area:fig;align-self:start;margin:2px 0 0}
-    .seat .plate{grid-area:plate;margin:0}
-    .seat .bubble{grid-area:bubble;margin:0;align-self:start;padding:7px 9px 8px;gap:4px}
-    .seat .bubble::after{top:14px}
-    .seat .bnow{-webkit-line-clamp:3;font-size:12px}
-    .seat{padding:7px 0 9px}
-    .seat .bnext{font-size:10.5px}
+    .seat .plate{grid-area:plate;margin:0;padding:6px 8px;gap:7px}
+    .seat .mark{width:23px;height:23px;border-radius:8px;font-size:10.5px}
+    .seat .who b{font-size:12.5px}
+    .seat .who em{font-size:9px}
+    .seat .state{font-size:9px;padding:2px 6px}
+    .seat .bubble{grid-area:bubble;margin:0;align-self:start;padding:6px 9px 7px;gap:3px}
+    .seat .bubble::after{top:13px}
+    .seat .bnow{-webkit-line-clamp:2;font-size:11.5px;line-height:1.4}
+    .seat .bnext{font-size:10px}
     .seat .duties{display:none}
-    .figure svg{max-height:112px}
-    .wall{padding:12px 12px 0}
-    .deco svg{height:52px}
-    .deco .d-lamp{height:62px}
-    .seats{padding:0 10px}
-    .shared{padding:0 10px 10px}
+    .shared{padding:0 10px 8px;margin-top:4px}
     .shared-cap{font-size:9px}
   }
-
   .shared{margin-top:8px;padding:0 12px 12px;position:relative;z-index:2}
   .shared svg{display:block;width:100%;height:auto}
   .shared-cap{
