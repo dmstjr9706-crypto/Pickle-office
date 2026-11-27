@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#FBF7F2">
+<title>피클 합동 비서실 · 3곳 자동화 현황판</title>
+<meta name="description" content="세 곳의 AI 비서가 지금 무엇을 하고 있는지 한눈에 보는 합동 비서실 오피스 맵과 현황판.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏢</text></svg>">
+<style>
+  :root{
+    --bg:#FBF7F2; --ink:#2B2530; --muted:#6E6577; --faint:#9A92A6;
+    --line:#ECE3D9; --card:#FFFFFF; --pink:#F7A8C0; --deep-pink:#D2657F;
+    --ok:#2F9E6F; --wait:#B98A1E; --go:#4A6CF7;
+    --shadow:0 1px 2px rgba(43,37,48,.05), 0 10px 30px -12px rgba(43,37,48,.18);
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;
+    line-height:1.55; letter-spacing:-0.01em;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{width:min(1180px,100%);margin:0 auto;padding:0 16px}
+  @media(min-width:768px){ .wrap{padding:0 28px} }
+
+  /* ---------- hero ---------- */
+  .hero{
+    background:
+      radial-gradient(120% 90% at 12% -10%, #FFE3EC 0%, rgba(255,227,236,0) 55%),
+      radial-gradient(110% 80% at 88% 0%, #E4F6F0 0%, rgba(228,246,240,0) 55%),
+      linear-gradient(180deg,#FFFDFA 0%, #FBF7F2 100%);
+    border-bottom:1px solid var(--line);
+    padding:22px 0 20px;
+  }
+  @media(min-width:768px){ .hero{padding:30px 0 26px} }
+  .hero-in{display:flex;flex-wrap:wrap;gap:16px 24px;align-items:flex-start;justify-content:space-between}
+  .brand{display:flex;gap:14px;align-items:flex-start;min-width:0}
+  .logo{
+    flex:0 0 auto;width:52px;height:52px;border-radius:16px;background:#fff;
+    display:grid;place-items:center;box-shadow:var(--shadow);border:1px solid var(--line)
+  }
+  .logo svg{width:30px;height:30px}
+  .kicker{margin:2px 0 2px;font-size:10.5px;font-weight:800;letter-spacing:.16em;color:var(--deep-pink)}
+  h1{margin:0;font-size:clamp(22px,5.2vw,32px);font-weight:800;letter-spacing:-.03em;line-height:1.2}
+  .headline{margin:7px 0 0;font-size:13.5px;color:var(--muted);max-width:52ch}
+  .live{
+    display:flex;flex-direction:column;gap:4px;align-items:flex-end;text-align:right;
+    background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 14px;box-shadow:var(--shadow)
+  }
+  .live .clockline{display:flex;align-items:center;gap:7px;font-variant-numeric:tabular-nums}
+  .live strong{font-size:19px;font-weight:800;letter-spacing:.02em}
+  .live .tz{font-size:10.5px;font-weight:700;color:var(--faint)}
+  .live p{margin:0;font-size:11px;color:var(--faint)}
+  .pulse{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(47,158,111,.5);animation:pulse 2.4s infinite}
+  @keyframes pulse{70%{box-shadow:0 0 0 7px rgba(47,158,111,0)}100%{box-shadow:0 0 0 0 rgba(47,158,111,0)}}
+
+  /* ---------- office ---------- */
+  .office{padding:24px 0 6px}
+  .office-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  .tag{
+    font-size:10px;font-weight:800;letter-spacing:.14em;color:#fff;background:var(--ink);
+    padding:3px 8px;border-radius:999px
+  }
+  .office-head h2{margin:0;font-size:17px;font-weight:800;letter-spacing:-.02em}
+  .office-head p{margin:0;font-size:12.5px;color:var(--faint)}
+  .rooms{display:grid;grid-template-columns:1fr;gap:14px}
+  @media(min-width:700px){ .rooms{grid-template-columns:repeat(3,1fr)} }
+  .room{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
+    box-shadow:var(--shadow);display:flex;flex-direction:column;position:relative;
+    transition:transform .25s ease, box-shadow .25s ease
+  }
+  .room:hover{transform:translateY(-3px);box-shadow:0 2px 4px rgba(43,37,48,.06),0 18px 40px -16px rgba(43,37,48,.28)}
+  .room::after{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:var(--c)}
+  .room-visual{position:relative;background:linear-gradient(180deg,#FFF 0%,#FDFAF6 100%)}
+  .room-visual svg{display:block;width:100%;height:auto}
+  .room-body{padding:12px 15px 15px;display:flex;flex-direction:column;gap:9px;flex:1}
+  .id-row{display:flex;align-items:center;gap:9px}
+  .mark{
+    width:30px;height:30px;flex:0 0 auto;border-radius:11px;display:grid;place-items:center;
+    font-size:13px;font-weight:900;color:#fff;background:var(--d);box-shadow:0 3px 10px -2px var(--c)
+  }
+  .id-row h3{margin:0;font-size:15.5px;font-weight:800;letter-spacing:-.02em}
+  .id-row span.dev{display:block;font-size:11px;color:var(--faint);margin-top:-1px}
+  .state{
+    margin-left:auto;font-size:10.5px;font-weight:800;padding:3px 8px;border-radius:999px;
+    background:#F3F7F5;color:var(--ok);white-space:nowrap
+  }
+  .state.idle{background:#FBF4E4;color:var(--wait)}
+  .now{
+    margin:0;font-size:13px;font-weight:600;line-height:1.5;color:#3B3341;
+    background:linear-gradient(180deg,#FFFDFB,#FBF7F2);border:1px solid var(--line);
+    border-radius:12px;padding:9px 11px;
+  }
+  .now::before{content:"지금 ";font-weight:800;color:var(--d);font-size:12px}
+  .duties{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+  .duties li{font-size:12px;color:var(--muted);padding-left:14px;position:relative;line-height:1.45}
+  .duties li::before{content:"";position:absolute;left:3px;top:6px;width:5px;height:5px;border-radius:50%;background:var(--c)}
+  .next{
+    margin-top:auto;font-size:11.5px;color:var(--d);font-weight:700;
+    border-top:1px dashed var(--line);padding-top:8px
+  }
+  .next::before{content:"다음 → ";font-weight:800;opacity:.75}
+
+  /* ---------- board ---------- */
+  .board-head{margin:30px 0 12px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .board-head h2{margin:0;font-size:17px;font-weight:800;letter-spacing:-.02em}
+  .board-head p{margin:0;font-size:12.5px;color:var(--faint)}
+  .board{display:grid;grid-template-columns:1fr;gap:14px;padding-bottom:8px}
+  @media(min-width:760px){ .board{grid-template-columns:repeat(2,1fr)} .wide{grid-column:1/-1} }
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    padding:15px 16px 16px;box-shadow:var(--shadow)
+  }
+  .card > h3{
+    margin:0 0 12px;font-size:14px;font-weight:800;letter-spacing:-.01em;
+    display:flex;align-items:center;gap:8px
+  }
+  .card > h3 .ico{font-size:15px}
+  .card > h3 .chip{
+    margin-left:auto;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:999px;
+    background:#F6F1EA;color:var(--muted);letter-spacing:0
+  }
+  .days{display:grid;grid-template-columns:1fr;gap:16px}
+  @media(min-width:700px){ .days{grid-template-columns:1fr 1fr;gap:22px} }
+  .day-head{display:flex;align-items:center;gap:8px;margin-bottom:2px}
+  .day-head h4{margin:0;font-size:13px;font-weight:800}
+  .day-head .badge{margin-left:auto}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--dc,#ccc);flex:0 0 auto;margin-top:6px}
+  .slot{
+    display:grid;grid-template-columns:12px 1fr 14px;gap:2px 9px;align-items:start;
+    padding:8px 6px 8px 0;border-top:1px dashed var(--line);border-radius:6px
+  }
+  .slot:hover{background:#FDFAF6}
+  .slot-title{font-size:12.5px;font-weight:620;line-height:1.42;grid-column:2;color:#3B3341}
+  .slot-meta{grid-column:2;font-size:10.5px;font-weight:700;color:var(--faint);display:flex;gap:6px;align-items:center}
+  .slot-meta em{font-style:normal;font-weight:800;color:var(--muted)}
+  .arrow{grid-column:3;grid-row:1/3;font-size:12px;color:var(--faint);align-self:center}
+
+  .pub{border-top:1px dashed var(--line);padding:11px 0 10px;display:grid;gap:3px}
+  .pub:first-of-type{border-top:0;padding-top:0}
+  .pub-top{display:flex;align-items:center;gap:7px}
+  .pub-top .ico{font-size:13px}
+  .pub-name{font-size:13px;font-weight:800;letter-spacing:-.01em}
+  .pub-name em{font-style:normal;font-weight:600;font-size:11px;color:var(--faint);margin-left:5px}
+  .pub-top .badge{margin-left:auto}
+  .pub-title{font-size:12.5px;line-height:1.45;color:#3B3341}
+  .pub-title a{border-bottom:1px solid #EDE3D8}
+  .pub-title a:hover{border-color:var(--deep-pink);color:var(--deep-pink)}
+  .pub-foot{font-size:11px;color:var(--faint);display:flex;flex-wrap:wrap;gap:3px 8px}
+  .pub-foot b{color:var(--muted);font-weight:800;font-variant-numeric:tabular-nums}
+
+  .badge{font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;white-space:nowrap}
+  .badge.done{background:#E8F6EF;color:#1F7A55}
+  .badge.scheduled{background:#EDEFFE;color:#3D55C9}
+  .badge.progress{background:#FFF3DC;color:#9A6E10}
+  .badge.wait{background:#F3F0F6;color:#6E6577}
+
+  .camp{border-top:1px dashed var(--line);padding:11px 0 4px}
+  .camp:first-of-type{border-top:0;padding-top:0}
+  .camp-top{display:flex;align-items:center;gap:7px}
+  .camp-top h4{margin:0;font-size:13px;font-weight:800}
+  .camp-head{font-size:12px;color:var(--muted);margin:3px 0 7px}
+  .bar-row{display:grid;grid-template-columns:1fr auto;gap:2px 8px;margin:6px 0 2px}
+  .bar-label{font-size:11.5px;font-weight:700;color:#4A4153}
+  .bar-num{font-size:11px;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums}
+  .bar{grid-column:1/-1;height:6px;border-radius:99px;background:#F1EAE1;overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:99px;background:var(--bc,#888)}
+  .bar-note{grid-column:1/-1;font-size:10.5px;color:var(--faint)}
+  .lines{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+  .lines li{font-size:11.5px;color:var(--muted);padding-left:12px;position:relative}
+  .lines li::before{content:"";position:absolute;left:2px;top:6px;width:4px;height:4px;border-radius:50%;background:#D8CCBE}
+
+  .dates{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+  .dates li{
+    display:flex;align-items:center;gap:6px;font-size:11px;background:#FBF7F2;border:1px solid var(--line);
+    border-radius:999px;padding:3px 9px 3px 4px;color:var(--muted)
+  }
+  .dates li b{
+    background:#fff;border:1px solid var(--line);border-radius:999px;padding:1px 6px;
+    font-size:10.5px;font-variant-numeric:tabular-nums;color:var(--ink)
+  }
+
+  .tl{list-style:none;margin:0;padding:0}
+  .tl li{display:grid;grid-template-columns:44px 14px 1fr;gap:0 8px;align-items:start;padding:5px 0;position:relative}
+  .tl .t{font-size:11.5px;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums;padding-top:1px}
+  .tl .p{width:14px;display:grid;place-items:center;padding-top:5px;position:relative}
+  .tl .p::before{content:"";width:7px;height:7px;border-radius:50%;background:#231E29;box-shadow:0 0 0 3px #FBF7F2;z-index:1}
+  .tl li:not(:last-child) .p::after{content:"";position:absolute;top:13px;bottom:-12px;width:1.5px;background:var(--line)}
+  .tl .l{font-size:12.5px;font-weight:600;line-height:1.4}
+  .tl .o{display:block;font-size:10.5px;color:var(--faint);font-weight:600}
+  .tl li.done .p::before{background:var(--ok)}
+  .tl li.done .l{color:var(--faint);text-decoration:line-through;text-decoration-thickness:1px;text-decoration-color:#D9D1C6}
+  .tl li.now .p::before{background:var(--deep-pink);box-shadow:0 0 0 3px #FBF7F2,0 0 0 6px rgba(210,101,127,.18)}
+
+  footer{border-top:1px solid var(--line);margin-top:22px;padding:18px 0 34px;background:#FDFAF6}
+  footer p{margin:0 0 6px;font-size:11.5px;color:var(--faint);line-height:1.6}
+  footer a{border-bottom:1px solid #DED3C6;color:var(--muted)}
+  footer code{font-size:10.5px;background:#F2EBE2;border-radius:4px;padding:1px 4px}
+
+  .loading{padding:40px 0;text-align:center;color:var(--faint);font-size:13px}
+  .err{background:#FFF3F3;border:1px solid #F3D4D4;color:#8A3B3B;border-radius:12px;padding:12px;font-size:12.5px;margin:16px 0}
+
+  /* ---------- svg animation ---------- */
+  .ch{transform-box:fill-box;transform-origin:bottom center;animation:bob 4.4s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.6px)}}
+  .eyes{transform-box:fill-box;transform-origin:center;animation:blink 6.2s infinite}
+  @keyframes blink{0%,93.5%,100%{transform:scaleY(1)}95.2%{transform:scaleY(.08)}97%{transform:scaleY(1)}}
+  .hands{transform-box:fill-box;animation:type .78s ease-in-out infinite alternate}
+  @keyframes type{from{transform:translateY(0)}to{transform:translateY(-2.2px)}}
+  .glow{animation:glow 4.6s ease-in-out infinite}
+  @keyframes glow{0%,100%{opacity:.16}50%{opacity:.38}}
+  .steam{transform-box:fill-box;transform-origin:bottom center;animation:steam 3.4s ease-in-out infinite}
+  @keyframes steam{0%{opacity:0;transform:translateY(1px) scale(.9)}35%{opacity:.65}100%{opacity:0;transform:translateY(-8px) scale(1.15)}}
+  .minute{transform-box:view-box;transform-origin:196px 58px;animation:tick 60s linear infinite}
+  @keyframes tick{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion: reduce){ *{animation:none!important} }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap hero-in">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none">
+          <rect x="6" y="14" width="36" height="28" rx="5" fill="#F7A8C0"/>
+          <rect x="6" y="14" width="36" height="8" rx="4" fill="#D2657F"/>
+          <rect x="12" y="26" width="7" height="7" rx="1.6" fill="#fff"/>
+          <rect x="21" y="26" width="7" height="7" rx="1.6" fill="#fff"/>
+          <rect x="30" y="26" width="7" height="7" rx="1.6" fill="#fff"/>
+          <rect x="12" y="35" width="7" height="7" rx="1.6" fill="#fff" opacity=".75"/>
+          <rect x="21" y="35" width="16" height="7" rx="1.6" fill="#fff" opacity=".75"/>
+        </svg>
+      </div>
+      <div>
+        <p class="kicker">PICKLE JOINT OFFICE</p>
+        <h1>피클 합동 비서실</h1>
+        <p class="headline" id="headline">현황을 불러오는 중…</p>
+      </div>
+    </div>
+    <div class="live">
+      <div class="clockline"><span class="pulse" aria-hidden="true"></span><strong id="clock">--:--</strong><span class="tz">KST</span></div>
+      <p id="updated">현황판 갱신 확인 중</p>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="office" aria-labelledby="office-title">
+    <div class="office-head">
+      <span class="tag">OFFICE MAP</span>
+      <h2 id="office-title">합동 비서실</h2>
+      <p>세 곳의 비서가 지금 어느 자리에서 무엇을 하는지</p>
+    </div>
+    <div class="rooms" id="rooms">
+      <p class="loading">불러오는 중…</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="board-title">
+    <div class="board-head">
+      <h2 id="board-title">한눈에 보는 현황판</h2>
+      <p>예약·발행·응모 진행 상황</p>
+    </div>
+    <div class="board" id="board">
+      <p class="loading">불러오는 중…</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><strong>갱신 방법</strong> — 이 페이지의 모든 내용은 <code>data/status.json</code> 하나에서 나옵니다. 그 파일만 고쳐서 커밋하면 1분 안에 반영됩니다. 규칙은 저장소의 <a href="https://github.com/dmstjr9706-crypto/Pickle-office#현황-갱신-방법" target="_blank" rel="noopener">README</a>와 <code>docs/sync-guide.md</code>에 있습니다.</p>
+    <p><strong>공개 범위</strong> — 업무 현황과 콘텐츠 예약 정보만 담습니다. 연락처·주소·생년월일·계좌·비밀번호·이메일 같은 개인정보는 이 페이지에 저장하지 않습니다.</p>
+    <p>마지막 갱신 <span id="foot-updated">—</span> · <span id="foot-by">—</span></p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var esc = function (s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  };
+
+  /* ---------- colour helpers ---------- */
+  function mix(hex, to, t) {
+    var a = hex.replace("#", ""), b = to.replace("#", ""), out = "#";
+    for (var i = 0; i < 3; i++) {
+      var x = parseInt(a.substr(i * 2, 2), 16), y = parseInt(b.substr(i * 2, 2), 16);
+      out += Math.round(x + (y - x) * t).toString(16).padStart(2, "0");
+    }
+    return out;
+  }
+  var tint = function (h, t) { return mix(h, "#FFFFFF", t); };
+
+  /* ---------- office svg ---------- */
+  function shadow(id) { return "sh-" + id; }
+
+  function person(c) {
+    var col = c.color, deep = c.deep;
+    var common = "\
+      <rect x='132' y='154' width='56' height='48' rx='20' fill='" + col + "'/>";
+    if (c.id === "chuchu") {
+      return "<g class='ch'>" + common + "\
+        <path d='M137 120 L130 97 L154 111 Z' fill='" + col + "'/>\
+        <path d='M139 118 L135 104 L149 112 Z' fill='" + tint(col, 0.35) + "'/>\
+        <path d='M183 120 L190 97 L166 111 Z' fill='" + col + "'/>\
+        <path d='M181 118 L185 104 L171 112 Z' fill='" + tint(col, 0.35) + "'/>\
+        <rect x='127' y='104' width='66' height='58' rx='25' fill='" + col + "'/>\
+        <ellipse cx='137' cy='141' rx='5' ry='3.4' fill='#F27C9D' opacity='.5'/>\
+        <ellipse cx='183' cy='141' rx='5' ry='3.4' fill='#F27C9D' opacity='.5'/>\
+        <g class='eyes'><ellipse cx='147' cy='130' rx='4.4' ry='5.2' fill='#3A2F3C'/><ellipse cx='173' cy='130' rx='4.4' ry='5.2' fill='#3A2F3C'/></g>\
+        <path d='M155 142 q5 4.5 10 0' stroke='#3A2F3C' stroke-width='2.2' fill='none' stroke-linecap='round'/>\
+        <circle cx='160' cy='173' r='10.5' fill='#FFFFFF' opacity='.94'/>\
+        <text x='160' y='178' text-anchor='middle' font-size='12' font-weight='800' fill='" + deep + "'>ㅊ</text>\
+        <g class='hands'><rect x='121' y='183' width='33' height='9' rx='4.5' fill='" + col + "'/><rect x='166' y='183' width='33' height='9' rx='4.5' fill='" + col + "'/></g>\
+      </g>";
+    }
+    if (c.id === "haram") {
+      return "<g class='ch'>" + common + "\
+        <rect x='127' y='104' width='66' height='58' rx='25' fill='" + col + "'/>\
+        <path d='M158 103 q4 -13 13 -5 q-8 0 -9 7' fill='" + deep + "' opacity='.45'/>\
+        <path d='M129 127 a31 31 0 0 1 62 0' fill='none' stroke='" + deep + "' stroke-width='4.4' stroke-linecap='round'/>\
+        <rect x='185' y='122' width='9' height='18' rx='4.5' fill='" + deep + "'/>\
+        <path d='M189 140 q0 12 -15 14' fill='none' stroke='" + deep + "' stroke-width='3' stroke-linecap='round'/>\
+        <circle cx='148' cy='133' r='10' fill='#FFFFFF' opacity='.55'/>\
+        <circle cx='172' cy='133' r='10' fill='#FFFFFF' opacity='.55'/>\
+        <g class='eyes'><circle cx='148' cy='133' r='3.1' fill='#3A2F3C'/><circle cx='172' cy='133' r='3.1' fill='#3A2F3C'/></g>\
+        <circle cx='148' cy='133' r='10' fill='none' stroke='#3A2F3C' stroke-width='2.2'/>\
+        <circle cx='172' cy='133' r='10' fill='none' stroke='#3A2F3C' stroke-width='2.2'/>\
+        <path d='M158 133 h4' stroke='#3A2F3C' stroke-width='2.2'/>\
+        <path d='M156 150 q4 3.4 8 0' stroke='#3A2F3C' stroke-width='2' fill='none' stroke-linecap='round'/>\
+        <circle cx='160' cy='173' r='10.5' fill='#FFFFFF' opacity='.94'/>\
+        <text x='160' y='178' text-anchor='middle' font-size='12' font-weight='800' fill='" + deep + "'>ㅎ</text>\
+        <g class='hands'><rect x='121' y='183' width='33' height='9' rx='4.5' fill='" + col + "'/><rect x='166' y='183' width='23' height='9' rx='4.5' fill='" + col + "'/></g>\
+      </g>";
+    }
+    /* keyring */
+    return "<g class='ch'>" + common + "\
+      <circle cx='160' cy='88' r='11.5' fill='none' stroke='" + deep + "' stroke-width='4.2'/>\
+      <rect x='156' y='97' width='8' height='9' rx='2' fill='" + deep + "'/>\
+      <rect x='127' y='105' width='66' height='57' rx='25' fill='" + col + "'/>\
+      <ellipse cx='137' cy='142' rx='5' ry='3.4' fill='" + deep + "' opacity='.3'/>\
+      <ellipse cx='183' cy='142' rx='5' ry='3.4' fill='" + deep + "' opacity='.3'/>\
+      <g class='eyes'><ellipse cx='147' cy='129' rx='4.3' ry='5.1' fill='#3A2F3C'/><ellipse cx='173' cy='129' rx='4.3' ry='5.1' fill='#3A2F3C'/></g>\
+      <path d='M155 141 q5 4.5 10 0' stroke='#3A2F3C' stroke-width='2.2' fill='none' stroke-linecap='round'/>\
+      <g fill='#FFFFFF' opacity='.94'>\
+        <circle cx='160' cy='167' r='6.4'/><rect x='158.2' y='171' width='3.6' height='9'/><rect x='158.2' y='174' width='7.6' height='2.6'/>\
+      </g>\
+      <g class='hands'><rect x='121' y='183' width='33' height='9' rx='4.5' fill='" + col + "'/><rect x='166' y='183' width='33' height='9' rx='4.5' fill='" + col + "'/></g>\
+    </g>";
+  }
+
+  function screen(c) {
+    var a = c.color;
+    if (c.id === "chuchu") {
+      return "\
+        <rect x='50' y='158' width='40' height='5' rx='2.5' fill='" + a + "' opacity='.9'/>\
+        <rect x='50' y='167' width='26' height='4' rx='2' fill='#8E86A0'/>\
+        <rect x='50' y='175' width='34' height='4' rx='2' fill='#8E86A0'/>\
+        <path d='M84 165 l9 6 -9 6 z' fill='" + a + "'/>";
+    }
+    if (c.id === "haram") {
+      return "\
+        <rect x='50' y='157' width='18' height='18' rx='3' fill='" + a + "' opacity='.85'/>\
+        <rect x='72' y='159' width='26' height='4' rx='2' fill='" + a + "' opacity='.9'/>\
+        <rect x='72' y='167' width='20' height='3.4' rx='1.7' fill='#8E86A0'/>\
+        <rect x='50' y='179' width='48' height='3.4' rx='1.7' fill='#8E86A0'/>";
+    }
+    return "\
+      <circle cx='55' cy='160' r='3' fill='" + a + "'/>\
+      <rect x='62' y='158' width='30' height='4' rx='2' fill='#8E86A0'/>\
+      <circle cx='55' cy='170' r='3' fill='" + a + "'/>\
+      <rect x='62' y='168' width='22' height='4' rx='2' fill='#8E86A0'/>\
+      <circle cx='55' cy='180' r='3' fill='" + a + "'/>\
+      <rect x='62' y='178' width='34' height='4' rx='2' fill='#8E86A0'/>";
+  }
+
+  function props(c) {
+    var a = c.color, d = c.deep;
+    var s = "";
+    /* monitor (everyone, left side of desk) */
+    s += "<g class='mon'>\
+        <ellipse class='glow' cx='75' cy='170' rx='46' ry='34' fill='" + a + "'/>\
+        <rect x='42' y='146' width='66' height='45' rx='5' fill='#3A3346'/>\
+        <rect x='46' y='150' width='58' height='37' rx='3' fill='#241F2E'/>\
+        " + screen(c) + "\
+        <rect x='66' y='191' width='18' height='7' fill='#4A4257'/>\
+        <rect x='57' y='197' width='36' height='4' rx='2' fill='#4A4257'/>\
+      </g>";
+    if (c.id === "chuchu") {
+      s += "<g>\
+        <rect x='206' y='162' width='40' height='28' rx='4' fill='#3A3346' transform='rotate(-6 226 176)'/>\
+        <rect x='209' y='165' width='34' height='22' rx='2' fill='#2E2940' transform='rotate(-6 226 176)'/>\
+        <rect x='213' y='170' width='18' height='3.4' rx='1.7' fill='" + a + "' transform='rotate(-6 226 176)'/>\
+        <rect x='213' y='177' width='24' height='3.4' rx='1.7' fill='#7E7691' transform='rotate(-6 226 176)'/>\
+        <ellipse class='glow' cx='226' cy='176' rx='26' ry='18' fill='" + a + "'/>\
+      </g>";
+      s += "<g>\
+        <rect x='252' y='180' width='16' height='18' rx='4' fill='#B9D8C8'/>\
+        <path d='M260 180 q-10 -14 -16 -6 q8 -1 14 8' fill='#6FAF8C'/>\
+        <path d='M260 180 q9 -16 17 -7 q-8 -2 -15 9' fill='#8BC7A6'/>\
+      </g>";
+    } else if (c.id === "haram") {
+      s += "<g>\
+        <rect x='212' y='180' width='20' height='18' rx='4' fill='#FFFFFF' stroke='" + d + "' stroke-width='1.6'/>\
+        <path d='M232 184 q8 0 8 5 q0 5 -8 5' fill='none' stroke='" + d + "' stroke-width='1.6'/>\
+        <ellipse cx='222' cy='181' rx='9' ry='2.4' fill='" + d + "' opacity='.5'/>\
+        <g class='steam'><path d='M218 176 q-3 -5 1 -9' stroke='#C9BEB2' stroke-width='2' fill='none' stroke-linecap='round'/><path d='M225 176 q3 -6 -1 -10' stroke='#C9BEB2' stroke-width='2' fill='none' stroke-linecap='round'/></g>\
+      </g>";
+      s += "<g transform='rotate(-4 250 118)'>\
+        <rect x='236' y='100' width='28' height='28' rx='3' fill='#FFF0B8'/>\
+        <rect x='241' y='107' width='18' height='3' rx='1.5' fill='#B98A1E' opacity='.7'/>\
+        <rect x='241' y='114' width='14' height='3' rx='1.5' fill='#B98A1E' opacity='.7'/>\
+      </g>";
+      s += "<g transform='rotate(5 292 112)'><rect x='280' y='96' width='24' height='24' rx='3' fill='#DDF0C8'/>\
+        <rect x='284' y='103' width='16' height='3' rx='1.5' fill='#5E8C3A' opacity='.7'/></g>";
+    } else {
+      s += "<g>\
+        <rect x='200' y='178' width='46' height='9' rx='2' fill='#FFFFFF' stroke='#E0D6C8'/>\
+        <rect x='203' y='171' width='40' height='8' rx='2' fill='#FFFFFF' stroke='#E0D6C8'/>\
+        <rect x='206' y='164' width='34' height='8' rx='2' fill='#FFFFFF' stroke='#E0D6C8'/>\
+      </g>";
+      s += "<g>\
+        <rect x='256' y='180' width='16' height='18' rx='4' fill='#E2C48F'/>\
+        <path d='M264 180 q-9 -13 -15 -5 q7 0 12 8' fill='#8CB87A'/>\
+        <path d='M264 180 q8 -15 15 -6 q-7 -1 -13 9' fill='#A6CE93'/>\
+      </g>";
+    }
+    return s;
+  }
+
+  function roomSVG(c) {
+    var g = "g_" + c.id, a = c.color, d = c.deep;
+    return "<svg viewBox='0 0 320 292' role='img' aria-label='" + esc(c.name) + "의 자리'>\
+      <defs>\
+        <linearGradient id='wall-" + g + "' x1='0' y1='0' x2='0' y2='1'>\
+          <stop offset='0' stop-color='" + tint(a, 0.78) + "'/>\
+          <stop offset='1' stop-color='" + tint(a, 0.92) + "'/>\
+        </linearGradient>\
+        <linearGradient id='floor-" + g + "' x1='0' y1='0' x2='0' y2='1'>\
+          <stop offset='0' stop-color='#EFE1D2'/>\
+          <stop offset='1' stop-color='#E7D7C5'/>\
+        </linearGradient>\
+      </defs>\
+      <rect width='320' height='292' fill='url(#wall-" + g + ")'/>\
+      <rect width='320' height='204' fill='none'/>\
+      <rect y='196' width='320' height='9' fill='#FFFFFF' opacity='.55'/>\
+      <rect y='204' width='320' height='88' fill='url(#floor-" + g + ")'/>\
+      <path d='M0 238 H320 M0 266 H320' stroke='#D8C4AE' stroke-width='1.6' opacity='.7'/>\
+      <ellipse cx='160' cy='248' rx='124' ry='27' fill='" + a + "' opacity='.2'/>\
+      <g>\
+        <rect x='16' y='32' width='88' height='74' rx='9' fill='#BFE6F7'/>\
+        <circle cx='44' cy='56' r='10' fill='#FFF6C9'/>\
+        <ellipse cx='80' cy='88' rx='21' ry='7' fill='#FFFFFF' opacity='.8'/>\
+        <ellipse cx='38' cy='84' rx='14' ry='5' fill='#FFFFFF' opacity='.55'/>\
+        <rect x='16' y='32' width='88' height='74' rx='9' fill='none' stroke='#FFFFFF' stroke-width='5'/>\
+        <path d='M60 34 V104 M18 69 H102' stroke='#FFFFFF' stroke-width='3.4'/>\
+      </g>\
+      <g>\
+        <rect x='240' y='96' width='64' height='6' rx='3' fill='#D6BEA4'/>\
+        <rect x='245' y='76' width='9' height='20' rx='1.5' fill='#E0696E'/>\
+        <rect x='256' y='70' width='8' height='26' rx='1.5' fill='#7C5CFF'/>\
+        <rect x='266' y='80' width='7' height='16' rx='1.5' fill='#F6C86A'/>\
+        <rect x='275' y='74' width='9' height='22' rx='1.5' fill='#3E9C86'/>\
+      </g>\
+      <g transform='translate(196,58)'>\
+        <circle r='16' fill='#FFFFFF'/>\
+        <circle r='16' fill='none' stroke='" + d + "' stroke-width='2' opacity='.45'/>\
+        <circle r='1.8' fill='#3A2F3C'/>\
+        <line class='minute' x1='0' y1='0' x2='0' y2='-11' stroke='#3A2F3C' stroke-width='2' stroke-linecap='round'/>\
+        <line x1='0' y1='0' x2='5.5' y2='3' stroke='#3A2F3C' stroke-width='1.6' stroke-linecap='round'/>\
+      </g>\
+      " + person(c) + "\
+      <g>\
+        <rect x='30' y='198' width='260' height='13' rx='6.5' fill='#C89B6C'/>\
+        <rect x='30' y='198' width='260' height='5' rx='2.5' fill='" + tint("#C89B6C", 0.28) + "'/>\
+        <rect x='44' y='211' width='9' height='44' rx='2' fill='#B0854F'/>\
+        <rect x='267' y='211' width='9' height='44' rx='2' fill='#B0854F'/>\
+      </g>\
+      " + props(c) + "\
+    </svg>";
+  }
+
+  /* ---------- renderers ---------- */
+  function badgeClass(s) {
+    if (!s) return "wait";
+    if (s.indexOf("완료") > -1 && s.indexOf("예약") > -1) return "scheduled";
+    if (s.indexOf("예약") > -1) return "scheduled";
+    if (s.indexOf("완료") > -1) return "done";
+    if (s.indexOf("진행") > -1) return "progress";
+    return "wait";
+  }
+
+  function renderRooms(data) {
+    $("#rooms").innerHTML = data.characters.map(function (c) {
+      var idle = /대기|휴식|중지/.test(c.state || "");
+      return "<article class='room' style='--c:" + c.color + ";--d:" + c.deep + "'>" +
+        "<div class='room-visual'>" + roomSVG(c) + "</div>" +
+        "<div class='room-body'>" +
+          "<div class='id-row'>" +
+            "<span class='mark'>" + esc(c.mark) + "</span>" +
+            "<div><h3>" + esc(c.name) + "</h3><span class='dev'>" + esc(c.device) + " · " + esc(c.role) + "</span></div>" +
+            "<span class='state" + (idle ? " idle" : "") + "'>" + esc(c.state) + "</span>" +
+          "</div>" +
+          "<p class='now'>" + esc(c.now) + "</p>" +
+          "<ul class='duties'>" + (c.duties || []).map(function (d) { return "<li>" + esc(d) + "</li>"; }).join("") + "</ul>" +
+          (c.next ? "<div class='next'>" + esc(c.next) + "</div>" : "") +
+        "</div></article>";
+    }).join("");
+  }
+
+  function renderYoutube(data) {
+    var days = (data.youtube || []).map(function (day) {
+      return "<div class='day'>" +
+        "<div class='day-head'><h4>" + esc(day.label) + "</h4><span class='badge scheduled'>" +
+          (day.slots || []).length + "편 · " + esc(day.state) + "</span></div>" +
+        (day.slots || []).map(function (s) {
+          return "<a class='slot' href='" + esc(s.url) + "' target='_blank' rel='noopener'>" +
+            "<span class='dot' style='--dc:" + esc(s.color) + "'></span>" +
+            "<span class='slot-meta'><em>" + esc(s.channel) + "</em> · " + esc(s.type) + " · " + esc(day.time) + "</span>" +
+            "<span class='slot-title'>" + esc(s.title) + "</span>" +
+            "<span class='arrow'>↗</span></a>";
+        }).join("") +
+      "</div>";
+    }).join("");
+    return "<article class='card wide'><h3><span class='ico'>🎬</span>유튜브 4채널 예약 현황<span class='chip'>매일 18:00 정각</span></h3>" +
+      "<div class='days'>" + days + "</div></article>";
+  }
+
+  function renderPublishing(data) {
+    var rows = (data.publishing || []).map(function (p) {
+      var title = p.url
+        ? "<a href='" + esc(p.url) + "' target='_blank' rel='noopener'>" + esc(p.title) + "</a>"
+        : esc(p.title);
+      return "<div class='pub'>" +
+        "<div class='pub-top'><span class='ico'>" + esc(p.icon || "•") + "</span>" +
+          "<span class='pub-name'>" + esc(p.name) + "<em>" + esc(p.account) + "</em></span>" +
+          "<span class='badge " + badgeClass(p.status) + "'>" + esc(p.status) + "</span></div>" +
+        "<div class='pub-title'>" + title + "</div>" +
+        "<div class='pub-foot'><b>" + esc(p.slot) + "</b><span>" + esc(p.owner) + "</span><span>· " + esc(p.note) + "</span></div>" +
+      "</div>";
+    }).join("");
+    return "<article class='card'><h3><span class='ico'>📝</span>블로그 · 클립 · 쓰레드<span class='chip'>" +
+      (data.publishing || []).length + "건</span></h3>" + rows + "</article>";
+  }
+
+  function renderCampaigns(data) {
+    var blocks = (data.campaigns || []).map(function (c) {
+      var inner = "";
+      if (c.bars) {
+        inner = c.bars.map(function (b) {
+          var pct = b.total ? Math.round(b.done / b.total * 100) : 0;
+          return "<div class='bar-row'><span class='bar-label'>" + esc(b.label) + "</span>" +
+            "<span class='bar-num'>" + b.done + " / " + b.total + "</span>" +
+            "<span class='bar'><i style='--bc:" + esc(b.color) + ";width:" + pct + "%'></i></span>" +
+            "<span class='bar-note'>" + esc(b.note) + "</span></div>";
+        }).join("");
+      }
+      if (c.lines) {
+        inner += "<ul class='lines'>" + c.lines.map(function (l) { return "<li>" + esc(l) + "</li>"; }).join("") + "</ul>";
+      }
+      return "<div class='camp'><div class='camp-top'><span class='ico'>" + esc(c.icon) + "</span><h4>" + esc(c.title) + "</h4></div>" +
+        "<p class='camp-head'>" + esc(c.headline) + "</p>" + inner + "</div>";
+    }).join("");
+
+    var dates = (data.contests_upcoming || []).map(function (d) {
+      return "<li><b>" + esc(d.date) + "</b>" + esc(d.label) + "</li>";
+    }).join("");
+
+    return "<article class='card'><h3><span class='ico'>🎯</span>체험단 · 크몽 · 공모전<span class='chip'>진행 중</span></h3>" +
+      blocks + (dates ? "<ul class='dates'>" + dates + "</ul>" : "") + "</article>";
+  }
+
+  function renderTimeline(data) {
+    var items = (data.timeline || []).map(function (t) {
+      return "<li class='" + (t.done ? "done" : "") + "'><span class='t'>" + esc(t.time) + "</span>" +
+        "<span class='p'></span><span class='l'>" + esc(t.label) + "<span class='o'>" + esc(t.owner) + "</span></span></li>";
+    }).join("");
+    return "<article class='card'><h3><span class='ico'>🗓️</span>오늘의 타임라인<span class='chip'>11/27 (금)</span></h3>" +
+      "<ul class='tl'>" + items + "</ul></article>";
+  }
+
+  /* ---------- clock ---------- */
+  function clock() {
+    var now = new Date();
+    var seoul = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+    var hh = String(seoul.getHours()).padStart(2, "0");
+    var mm = String(seoul.getMinutes()).padStart(2, "0");
+    $("#clock").textContent = hh + ":" + mm;
+  }
+  function ago(iso) {
+    var t = Date.parse(iso);
+    if (isNaN(t)) return "—";
+    var diff = Math.max(0, Date.now() - t);
+    var m = Math.round(diff / 60000);
+    if (m < 1) return "방금";
+    if (m < 60) return m + "분 전";
+    var h = Math.round(m / 60);
+    if (h < 24) return h + "시간 전";
+    return Math.round(h / 24) + "일 전";
+  }
+  function stamp(iso) {
+    var d = new Date(Date.parse(iso));
+    if (isNaN(d.getTime())) return "—";
+    var s = new Date(d.getTime() + (d.getTimezoneOffset() + 540) * 60000);
+    return (s.getMonth() + 1) + "월 " + s.getDate() + "일 " +
+      String(s.getHours()).padStart(2, "0") + ":" + String(s.getMinutes()).padStart(2, "0");
+  }
+
+  /* ---------- boot ---------- */
+  clock();
+  setInterval(clock, 15000);
+
+  fetch("data/status.json?v=" + Date.now(), { cache: "no-store" })
+    .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    .then(function (data) {
+      $("#headline").textContent = data.headline || "";
+      renderRooms(data);
+      $("#board").innerHTML = renderYoutube(data) + renderPublishing(data) + renderCampaigns(data) + renderTimeline(data);
+      $("#updated").textContent = "현황판 갱신 " + ago(data.updated_at);
+      $("#foot-updated").textContent = stamp(data.updated_at) + " (" + ago(data.updated_at) + ")";
+      $("#foot-by").textContent = data.updated_by ? data.updated_by + " 기록" : "";
+      document.title = "피클 합동 비서실 · " + (data.headline || "현황판");
+    })
+    .catch(function (e) {
+      var msg = "현황 데이터(data/status.json)를 불러오지 못했습니다. " + e.message;
+      $("#rooms").innerHTML = "<p class='err'>" + esc(msg) + "</p>";
+      $("#board").innerHTML = "<p class='err'>" + esc(msg) + "</p>";
+    });
+})();
+</script>
+</body>
+</html>
