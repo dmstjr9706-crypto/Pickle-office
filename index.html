@@ -940,6 +940,7 @@
         startLive();
         loadPresence();
         resync();
+        if (encSource === "db") setSrc("실시간 연결", "on");
         if (remember) {
           return subtle().exportKey("raw", r.key).then(function (raw) {
             try {
@@ -1012,6 +1013,7 @@
     subtle().importKey("raw", b64ToBytes(saved.key), { name: "AES-GCM" }, false, ["decrypt"])
       .then(function (key) {
         liveKey = key;
+        if (encSource === "db") setSrc("실시간 연결", "on");
         return decryptWith(key);
       })
       .then(showApp)
