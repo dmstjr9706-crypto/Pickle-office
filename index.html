@@ -6,13 +6,19 @@
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#FBF7F2">
 <title>피클 합동 비서실 · 3곳 자동화 현황판</title>
-<meta name="description" content="세 곳의 AI 비서가 지금 무엇을 하고 있는지 한눈에 보는 합동 비서실 오피스 맵과 현황판.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏢</text></svg>">
+<meta name="description" content="세 곳의 AI 비서가 같은 사무실에서 지금 무엇을 하고 있는지 한눈에 보는 오피스 맵과 현황판.">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="피클 비서실">
 <style>
   :root{
     --bg:#FBF7F2; --ink:#2B2530; --muted:#6E6577; --faint:#9A92A6;
     --line:#ECE3D9; --card:#FFFFFF; --pink:#F7A8C0; --deep-pink:#D2657F;
-    --ok:#2F9E6F; --wait:#B98A1E; --go:#4A6CF7;
+    --ok:#2F9E6F; --wait:#7C7683; --go:#4A6CF7;
+    --wall:#FDF6EC; --wood:#C9A074; --floor:#F2E6D7;
     --shadow:0 1px 2px rgba(43,37,48,.05), 0 10px 30px -12px rgba(43,37,48,.18);
     --r:18px;
   }
@@ -35,29 +41,29 @@
       radial-gradient(110% 80% at 88% 0%, #E4F6F0 0%, rgba(228,246,240,0) 55%),
       linear-gradient(180deg,#FFFDFA 0%, #FBF7F2 100%);
     border-bottom:1px solid var(--line);
-    padding:22px 0 20px;
+    padding:20px 0 18px;
   }
-  @media(min-width:768px){ .hero{padding:30px 0 26px} }
-  .hero-in{display:flex;flex-wrap:wrap;gap:16px 24px;align-items:flex-start;justify-content:space-between}
-  .brand{display:flex;gap:14px;align-items:flex-start;min-width:0}
+  @media(min-width:768px){ .hero{padding:28px 0 24px} }
+  .hero-in{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:flex-start;justify-content:space-between}
+  .brand{display:flex;gap:12px;align-items:flex-start;min-width:0}
   .logo{
-    flex:0 0 auto;width:52px;height:52px;border-radius:16px;background:#fff;
-    display:grid;place-items:center;box-shadow:var(--shadow);border:1px solid var(--line)
+    flex:0 0 auto;width:50px;height:50px;border-radius:15px;background:#fff;
+    box-shadow:0 4px 14px -6px rgba(43,37,48,.35);border:1px solid var(--line);overflow:hidden
   }
-  .logo svg{width:30px;height:30px}
-  .kicker{margin:2px 0 2px;font-size:10.5px;font-weight:800;letter-spacing:.16em;color:var(--deep-pink)}
-  h1{margin:0;font-size:clamp(22px,5.2vw,32px);font-weight:800;letter-spacing:-.03em;line-height:1.2}
-  .headline{margin:7px 0 0;font-size:13.5px;color:var(--muted);max-width:52ch}
+  .logo img{display:block;width:100%;height:100%;object-fit:cover}
+  .kicker{margin:2px 0 2px;font-size:10px;font-weight:800;letter-spacing:.16em;color:var(--deep-pink)}
+  h1{margin:0;font-size:clamp(21px,5vw,30px);font-weight:800;letter-spacing:-.03em;line-height:1.2}
+  .headline{margin:6px 0 0;font-size:13px;color:var(--muted);max-width:54ch;line-height:1.5}
   .live{
     display:flex;flex-direction:column;gap:4px;align-items:flex-end;text-align:right;
-    background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 14px;box-shadow:var(--shadow)
+    background:#fff;border:1px solid var(--line);border-radius:14px;padding:9px 13px;box-shadow:var(--shadow)
   }
   .live .clockline{display:flex;align-items:center;gap:7px;font-variant-numeric:tabular-nums}
-  .live strong{font-size:19px;font-weight:800;letter-spacing:.02em}
-  .live .tz{font-size:10.5px;font-weight:700;color:var(--faint)}
-  .live p{margin:0;font-size:11px;color:var(--faint)}
+  .live strong{font-size:18px;font-weight:800;letter-spacing:.02em}
+  .live .tz{font-size:10px;font-weight:700;color:var(--faint)}
+  .live p{margin:0;font-size:10.5px;color:var(--faint)}
   .live p#updated.flash{color:var(--ok);font-weight:700;transition:color .3s ease}
-  .srcline{margin-top:2px}
+  .srcline{margin-top:1px}
   .srclive{
     display:inline-flex;align-items:center;gap:4px;font-size:9.5px;font-weight:800;letter-spacing:.02em;
     color:var(--faint);background:#F6F2EE;border:1px solid var(--line);border-radius:999px;padding:2px 7px;white-space:nowrap
@@ -65,104 +71,175 @@
   .srclive::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.75}
   .srclive.on{color:var(--ok);background:#EFF8F3;border-color:#D6EADD}
   .srclive.warn{color:var(--wait);background:#FBF4E4;border-color:#F0E3C2}
-  .id-row span.dev em.presence{font-style:normal;font-weight:700;color:var(--faint);margin-left:6px}
-  .id-row span.dev em.presence.on{color:var(--ok)}
   .pulse{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(47,158,111,.5);animation:pulse 2.4s infinite}
   @keyframes pulse{70%{box-shadow:0 0 0 7px rgba(47,158,111,0)}100%{box-shadow:0 0 0 0 rgba(47,158,111,0)}}
 
-  /* ---------- office ---------- */
-  .office{padding:24px 0 6px}
-  .office-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  /* ---------- office scene ---------- */
+  .office{padding:20px 0 4px}
+  .office-head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:12px}
   .tag{
-    font-size:10px;font-weight:800;letter-spacing:.14em;color:#fff;background:var(--ink);
+    font-size:9.5px;font-weight:800;letter-spacing:.14em;color:#fff;background:var(--ink);
     padding:3px 8px;border-radius:999px
   }
   .office-head h2{margin:0;font-size:17px;font-weight:800;letter-spacing:-.02em}
-  .office-head p{margin:0;font-size:12.5px;color:var(--faint)}
-  .rooms{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+  .office-head p{margin:0;font-size:12px;color:var(--faint)}
+
   .room{
-    background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
-    box-shadow:var(--shadow);display:flex;flex-direction:column;position:relative;
-    transition:transform .25s ease, box-shadow .25s ease
+    position:relative;border-radius:24px;overflow:hidden;background:var(--wall);
+    border:1px solid #EADCCB;
+    box-shadow:0 2px 4px rgba(43,37,48,.05),0 26px 50px -30px rgba(120,86,50,.55)
   }
-  .room:hover{transform:translateY(-3px);box-shadow:0 2px 4px rgba(43,37,48,.06),0 18px 40px -16px rgba(43,37,48,.28)}
-  .room::after{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:var(--c)}
-  .room-visual{position:relative;background:linear-gradient(180deg,#FFF 0%,#FDFAF6 100%)}
-  .room-visual svg{display:block;width:100%;height:auto}
-  .room-body{padding:12px 15px 15px;display:flex;flex-direction:column;gap:9px;flex:1}
-  .id-row{display:flex;align-items:center;gap:9px}
+  .room::before{
+    content:"";position:absolute;left:50%;top:-40px;width:420px;height:300px;transform:translateX(-50%);
+    background:radial-gradient(closest-side,rgba(255,241,186,.75),rgba(255,241,186,0) 72%);
+    pointer-events:none;z-index:0
+  }
+  .wall{position:relative;z-index:1;padding:14px 14px 0}
+  @media(min-width:700px){ .wall{padding:18px 24px 0} }
+  .deco{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+  .deco svg{display:block;height:58px;width:auto;flex:0 0 auto}
+  @media(min-width:520px){ .deco svg{height:70px} }
+  @media(min-width:900px){ .deco svg{height:84px} }
+  .deco .d-lamp{height:70px}
+  .deco .d-board,.deco .d-shelf{display:none}
+  @media(min-width:640px){ .deco .d-board,.deco .d-shelf{display:block} .deco .d-lamp{height:84px} }
+  .wall::after{
+    content:"";display:block;height:9px;margin-top:8px;border-radius:5px;
+    background:linear-gradient(180deg,#EADBC7,#DDCAB4);box-shadow:0 2px 4px rgba(140,105,66,.18)
+  }
+  .floor{
+    position:relative;z-index:1;
+    background:
+      repeating-linear-gradient(180deg, rgba(255,255,255,.42) 0 2px, rgba(255,255,255,0) 2px 27px),
+      linear-gradient(180deg,#F5EADC 0%, #F1E3D2 100%);
+    padding:10px 0 0;
+  }
+  .seats{display:grid;grid-template-columns:1fr;gap:2px;padding:0 12px;position:relative;z-index:2}
+  @media(min-width:700px){
+    .seats{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 18px;padding:2px 20px 0;align-items:end}
+  }
+  .seat{position:relative;min-width:0}
+
+  /* speech bubble */
+  .bubble{
+    position:relative;margin:0;background:#fff;border:1px solid #EDE2D6;border-radius:16px;
+    padding:9px 11px 10px;display:flex;flex-direction:column;gap:5px;justify-content:center;
+    box-shadow:0 10px 22px -18px rgba(43,37,48,.55);min-height:0
+  }
+  .bubble::after{
+    content:"";position:absolute;width:11px;height:11px;background:#fff;
+    border-right:1px solid #EDE2D6;border-bottom:1px solid #EDE2D6;
+    left:-6px;top:18px;transform:rotate(135deg);border-radius:0 0 2px 0
+  }
+  @media(min-width:700px){
+    .bubble{min-height:82px;margin-bottom:2px}
+    .bubble::after{left:50%;top:auto;bottom:-6.5px;transform:translateX(-50%) rotate(45deg)}
+  }
+  .bnow{margin:0;font-size:12.5px;font-weight:650;line-height:1.45;color:#3B3341;
+    display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+  .bnext{margin:0;font-size:11px;font-weight:800;color:var(--d);line-height:1.35;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .bnext::before{content:"다음 → ";opacity:.72}
+
+  .figure{width:100%;margin:2px 0 0}
+  .figure svg{display:block;width:100%;height:auto}
+
+  .plate{
+    display:flex;align-items:center;gap:8px;margin-top:7px;padding:7px 9px;background:#fff;
+    border:1px solid #EDE2D6;border-radius:14px;box-shadow:0 2px 10px -8px rgba(43,37,48,.55)
+  }
   .mark{
-    width:30px;height:30px;flex:0 0 auto;border-radius:11px;display:grid;place-items:center;
-    font-size:13px;font-weight:900;color:#fff;background:var(--d);box-shadow:0 3px 10px -2px var(--c)
+    width:27px;height:27px;flex:0 0 auto;border-radius:9px;display:grid;place-items:center;
+    font-size:12px;font-weight:900;color:#fff;background:var(--d);box-shadow:0 3px 9px -3px var(--c)
   }
-  .id-row h3{margin:0;font-size:15.5px;font-weight:800;letter-spacing:-.02em}
-  .id-row span.dev{display:block;font-size:11px;color:var(--faint);margin-top:-1px}
+  .who{min-width:0;line-height:1.22}
+  .who b{display:block;font-size:13.5px;font-weight:800;letter-spacing:-.02em}
+  .who em{display:block;font-size:10px;font-style:normal;color:var(--faint);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .who em .pres{font-style:normal;font-weight:800;color:var(--faint)}
+  .who em .pres.on{color:var(--ok)}
   .state{
-    margin-left:auto;font-size:10.5px;font-weight:800;padding:3px 8px;border-radius:999px;
-    background:#F3F7F5;color:var(--ok);white-space:nowrap
+    margin-left:auto;flex:0 0 auto;display:inline-flex;align-items:center;gap:4px;
+    font-size:10px;font-weight:800;padding:3px 7px;border-radius:999px;
+    background:#F1F0EC;color:var(--wait);white-space:nowrap
   }
-  .state.idle{background:#FBF4E4;color:var(--wait)}
-  .now{
-    margin:0;font-size:13px;font-weight:600;line-height:1.5;color:#3B3341;
-    background:linear-gradient(180deg,#FFFDFB,#FBF7F2);border:1px solid var(--line);
-    border-radius:12px;padding:9px 11px;
+  .state .sd{width:6px;height:6px;border-radius:50%;background:#B9B3BE}
+  .state:not(.idle){background:#EAF7F0;color:var(--ok)}
+  .state:not(.idle) .sd{background:var(--ok);box-shadow:0 0 0 0 rgba(47,158,111,.5);animation:pulse 2.2s infinite}
+  .duties{list-style:none;margin:7px 0 0;padding:0 3px;display:grid;gap:3px}
+  .duties li{font-size:11px;color:var(--muted);line-height:1.35;padding-left:10px;position:relative}
+  .duties li::before{content:"";position:absolute;left:1px;top:5.5px;width:4px;height:4px;border-radius:50%;background:var(--c)}
+
+  @media(max-width:699px){
+    .seat{
+      display:grid;grid-template-columns:104px minmax(0,1fr);
+      grid-template-areas:"fig plate" "fig bubble";
+      gap:6px 10px;align-items:start;padding:9px 0 10px;
+      border-top:1px dashed rgba(190,150,105,.38)
+    }
+    .seat:first-child{border-top:0;padding-top:4px}
+    .seat .figure{grid-area:fig;align-self:start;margin:4px 0 0}
+    .seat .plate{grid-area:plate;margin:0}
+    .seat .bubble{grid-area:bubble;margin:0}
+    .seat .duties{display:none}
   }
-  .now::before{content:"지금 ";font-weight:800;color:var(--d);font-size:12px}
-  .duties{list-style:none;margin:0;padding:0;display:grid;gap:4px}
-  .duties li{font-size:12px;color:var(--muted);padding-left:14px;position:relative;line-height:1.45}
-  .duties li::before{content:"";position:absolute;left:3px;top:6px;width:5px;height:5px;border-radius:50%;background:var(--c)}
-  .next{
-    margin-top:auto;font-size:11.5px;color:var(--d);font-weight:700;
-    border-top:1px dashed var(--line);padding-top:8px
+
+  .shared{margin-top:8px;padding:0 12px 12px;position:relative;z-index:2}
+  .shared svg{display:block;width:100%;height:auto}
+  .shared-cap{
+    display:flex;align-items:center;justify-content:center;gap:6px;margin-top:2px;
+    font-size:9.5px;font-weight:700;color:#A2907B;letter-spacing:.02em
   }
-  .next::before{content:"다음 → ";font-weight:800;opacity:.75}
+  .shared-cap::before,.shared-cap::after{content:"";height:1px;flex:1;max-width:70px;background:rgba(190,150,105,.35)}
+  @media(min-width:700px){ .shared{padding:0 24px 14px;margin-top:4px} }
 
   /* ---------- board ---------- */
-  .board-head{margin:30px 0 12px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .board-head{margin:26px 0 11px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
   .board-head h2{margin:0;font-size:17px;font-weight:800;letter-spacing:-.02em}
-  .board-head p{margin:0;font-size:12.5px;color:var(--faint)}
-  .board{display:grid;grid-template-columns:1fr;gap:14px;padding-bottom:8px}
-  @media(min-width:820px){ .board{grid-template-columns:repeat(2,1fr)} .wide{grid-column:1/-1} }
+  .board-head p{margin:0;font-size:12px;color:var(--faint)}
+  .board{display:grid;grid-template-columns:1fr;gap:12px;padding-bottom:8px}
+  @media(min-width:820px){ .board{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px} .wide{grid-column:1/-1} }
   .card{
     background:var(--card);border:1px solid var(--line);border-radius:var(--r);
-    padding:15px 16px 16px;box-shadow:var(--shadow)
+    padding:14px 14px 15px;box-shadow:var(--shadow);min-width:0
   }
+  @media(min-width:768px){ .card{padding:16px 18px 17px} }
   .card > h3{
-    margin:0 0 12px;font-size:14px;font-weight:800;letter-spacing:-.01em;
-    display:flex;align-items:center;gap:8px
+    margin:0 0 11px;font-size:14px;font-weight:800;letter-spacing:-.01em;
+    display:flex;align-items:center;gap:7px
   }
   .card > h3 .ico{font-size:15px}
   .card > h3 .chip{
-    margin-left:auto;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:999px;
-    background:#F6F1EA;color:var(--muted);letter-spacing:0
+    margin-left:auto;font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;
+    background:#F6F1EA;color:var(--muted);letter-spacing:0;white-space:nowrap
   }
-  .days{display:grid;grid-template-columns:1fr;gap:16px}
+  .days{display:grid;grid-template-columns:1fr;gap:12px}
   @media(min-width:700px){ .days{grid-template-columns:1fr 1fr;gap:22px} }
-  .day-head{display:flex;align-items:center;gap:8px;margin-bottom:2px}
-  .day-head h4{margin:0;font-size:13px;font-weight:800}
+  .day-head{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+  .day-head h4{margin:0;font-size:12.5px;font-weight:800}
   .day-head .badge{margin-left:auto}
-  .dot{width:9px;height:9px;border-radius:50%;background:var(--dc,#ccc);flex:0 0 auto;margin-top:6px}
   .slot{
-    display:grid;grid-template-columns:12px 1fr 14px;gap:2px 9px;align-items:start;
-    padding:8px 6px 8px 0;border-top:1px dashed var(--line);border-radius:6px
+    display:grid;grid-template-columns:10px minmax(0,1fr) 12px;gap:1px 8px;align-items:start;
+    padding:7px 4px 7px 0;border-top:1px dashed var(--line);border-radius:6px
   }
   .slot:hover{background:#FDFAF6}
-  .slot-title{font-size:12.5px;font-weight:620;line-height:1.42;grid-column:2;color:#3B3341}
-  .slot-meta{grid-column:2;font-size:10.5px;font-weight:700;color:var(--faint);display:flex;gap:6px;align-items:center}
+  .dot{grid-column:1;grid-row:1/3;width:8px;height:8px;border-radius:50%;background:var(--dc,#ccc);margin-top:5px}
+  .slot-title{grid-column:2;grid-row:1;font-size:12.5px;font-weight:650;line-height:1.4;color:#3B3341}
+  .slot-meta{grid-column:2;grid-row:2;font-size:10.5px;font-weight:700;color:var(--faint);display:flex;flex-wrap:wrap;gap:2px 6px;align-items:center}
   .slot-meta em{font-style:normal;font-weight:800;color:var(--muted)}
   .arrow{grid-column:3;grid-row:1/3;font-size:12px;color:var(--faint);align-self:center}
 
-  .pub{border-top:1px dashed var(--line);padding:11px 0 10px;display:grid;gap:3px}
+  .pub{border-top:1px dashed var(--line);padding:10px 0 9px;display:grid;gap:3px}
   .pub:first-of-type{border-top:0;padding-top:0}
-  .pub-top{display:flex;align-items:center;gap:7px}
-  .pub-top .ico{font-size:13px}
-  .pub-name{font-size:13px;font-weight:800;letter-spacing:-.01em}
-  .pub-name em{font-style:normal;font-weight:600;font-size:11px;color:var(--faint);margin-left:5px}
-  .pub-top .badge{margin-left:auto}
+  .pub-top{display:flex;align-items:center;gap:6px;min-width:0}
+  .pub-top .ico{font-size:12.5px}
+  .pub-name{font-size:12.5px;font-weight:800;letter-spacing:-.01em;min-width:0}
+  .pub-name em{font-style:normal;font-weight:600;font-size:10.5px;color:var(--faint);margin-left:5px}
+  .pub-top .badge{margin-left:auto;flex:0 0 auto}
   .pub-title{font-size:12.5px;line-height:1.45;color:#3B3341}
   .pub-title a{border-bottom:1px solid #EDE3D8}
   .pub-title a:hover{border-color:var(--deep-pink);color:var(--deep-pink)}
-  .pub-foot{font-size:11px;color:var(--faint);display:flex;flex-wrap:wrap;gap:3px 8px}
+  .pub-foot{font-size:10.5px;color:var(--faint);display:flex;flex-wrap:wrap;gap:2px 7px}
   .pub-foot b{color:var(--muted);font-weight:800;font-variant-numeric:tabular-nums}
 
   .badge{font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;white-space:nowrap}
@@ -171,50 +248,51 @@
   .badge.progress{background:#FFF3DC;color:#9A6E10}
   .badge.wait{background:#F3F0F6;color:#6E6577}
 
-  .camp{border-top:1px dashed var(--line);padding:11px 0 4px}
+  .camp{border-top:1px dashed var(--line);padding:10px 0 3px}
   .camp:first-of-type{border-top:0;padding-top:0}
-  .camp-top{display:flex;align-items:center;gap:7px}
-  .camp-top h4{margin:0;font-size:13px;font-weight:800}
-  .camp-head{font-size:12px;color:var(--muted);margin:3px 0 7px}
-  .bar-row{display:grid;grid-template-columns:1fr auto;gap:2px 8px;margin:6px 0 2px}
-  .bar-label{font-size:11.5px;font-weight:700;color:#4A4153}
-  .bar-num{font-size:11px;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums}
-  .bar{grid-column:1/-1;height:6px;border-radius:99px;background:#F1EAE1;overflow:hidden}
+  .camp-top{display:flex;align-items:center;gap:6px}
+  .camp-top h4{margin:0;font-size:12.5px;font-weight:800}
+  .camp-head{font-size:11.5px;color:var(--muted);margin:3px 0 6px;line-height:1.45}
+  .bar-row{display:grid;grid-template-columns:1fr auto;gap:1px 8px;margin:5px 0 2px}
+  .bar-label{font-size:11px;font-weight:700;color:#4A4153}
+  .bar-num{font-size:10.5px;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums}
+  .bar{grid-column:1/-1;height:5px;border-radius:99px;background:#F1EAE1;overflow:hidden;margin-top:1px}
   .bar i{display:block;height:100%;border-radius:99px;background:var(--bc,#888)}
-  .bar-note{grid-column:1/-1;font-size:10.5px;color:var(--faint)}
-  .lines{list-style:none;margin:0;padding:0;display:grid;gap:4px}
-  .lines li{font-size:11.5px;color:var(--muted);padding-left:12px;position:relative}
-  .lines li::before{content:"";position:absolute;left:2px;top:6px;width:4px;height:4px;border-radius:50%;background:#D8CCBE}
+  .bar-note{grid-column:1/-1;font-size:10px;color:var(--faint);margin-top:1px}
+  .lines{list-style:none;margin:0;padding:0;display:grid;gap:3px}
+  .lines li{font-size:11px;color:var(--muted);padding-left:11px;position:relative;line-height:1.4}
+  .lines li::before{content:"";position:absolute;left:1px;top:6px;width:4px;height:4px;border-radius:50%;background:#D8CCBE}
 
-  .dates{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+  .dates{list-style:none;margin:9px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:5px}
   .dates li{
-    display:flex;align-items:center;gap:6px;font-size:11px;background:#FBF7F2;border:1px solid var(--line);
-    border-radius:999px;padding:3px 9px 3px 4px;color:var(--muted)
+    display:flex;align-items:center;gap:5px;font-size:10.5px;background:#FBF7F2;border:1px solid var(--line);
+    border-radius:999px;padding:2px 8px 2px 3px;color:var(--muted)
   }
   .dates li b{
     background:#fff;border:1px solid var(--line);border-radius:999px;padding:1px 6px;
-    font-size:10.5px;font-variant-numeric:tabular-nums;color:var(--ink)
+    font-size:10px;font-variant-numeric:tabular-nums;color:var(--ink)
   }
 
   .tl{list-style:none;margin:0;padding:0}
-  @media(min-width:820px){ .tl{columns:2;column-gap:36px} .tl li{break-inside:avoid} }
-  .tl li{display:grid;grid-template-columns:44px 14px 1fr;gap:0 8px;align-items:start;padding:5px 0;position:relative}
-  .tl li::before{content:"";position:absolute;left:56.5px;top:0;bottom:0;width:1.5px;background:var(--line)}
-  .tl .t{font-size:11.5px;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums;padding-top:1px}
-  .tl .p{width:14px;display:grid;place-items:center;padding-top:5px;position:relative;z-index:1}
+  @media(min-width:820px){ .tl{columns:2;column-gap:34px} .tl li{break-inside:avoid} }
+  .tl li{display:grid;grid-template-columns:42px 12px 1fr;gap:0 7px;align-items:start;padding:5px 0;position:relative}
+  .tl li::before{content:"";position:absolute;left:54.5px;top:0;bottom:0;width:1.5px;background:var(--line)}
+  .tl .t{font-size:11px;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums;padding-top:1px}
+  .tl .p{width:12px;display:grid;place-items:center;padding-top:5px;position:relative;z-index:1}
   .tl .p::before{content:"";width:7px;height:7px;border-radius:50%;background:#231E29;box-shadow:0 0 0 3px #fff;z-index:1}
   .tl .l{font-size:12.5px;font-weight:600;line-height:1.4}
-  .tl .o{display:block;font-size:10.5px;color:var(--faint);font-weight:600}
+  .tl .o{display:block;font-size:10px;color:var(--faint);font-weight:600}
   .tl li.done .p::before{background:var(--ok)}
   .tl li.done .l{color:var(--faint);text-decoration:line-through;text-decoration-thickness:1px;text-decoration-color:#D9D1C6}
   .tl li.now .p::before{background:var(--deep-pink);box-shadow:0 0 0 3px #fff,0 0 0 6px rgba(210,101,127,.18)}
+  .tl li.now .l{font-weight:800}
 
   footer{border-top:1px solid var(--line);margin-top:22px;padding:18px 0 34px;background:#FDFAF6}
   footer p{margin:0 0 6px;font-size:11.5px;color:var(--faint);line-height:1.6}
   footer a{border-bottom:1px solid #DED3C6;color:var(--muted)}
   footer code{font-size:10.5px;background:#F2EBE2;border-radius:4px;padding:1px 4px}
 
-  .loading{padding:40px 0;text-align:center;color:var(--faint);font-size:13px}
+  .loading{padding:30px 0;text-align:center;color:var(--faint);font-size:13px}
   .err{background:#FFF3F3;border:1px solid #F3D4D4;color:#8A3B3B;border-radius:12px;padding:12px;font-size:12.5px;margin:16px 0}
 
   /* ---------- lock screen ---------- */
@@ -230,11 +308,11 @@
   .lock-card{
     width:min(370px,100%);background:#fff;border:1px solid var(--line);border-radius:26px;
     box-shadow:0 2px 4px rgba(43,37,48,.05),0 28px 60px -26px rgba(43,37,48,.3);
-    padding:24px 22px 20px;text-align:center
+    padding:22px 22px 20px;text-align:center
   }
-  .lock-art{width:104px;height:104px;margin:0 auto 4px}
-  .lock-art svg{display:block;width:100%;height:100%}
-  .lock-pickle{transform-box:fill-box;transform-origin:bottom center;animation:bob 4.4s ease-in-out infinite}
+  .lock-art{width:96px;height:96px;margin:0 auto 6px;border-radius:26px;overflow:hidden;
+    box-shadow:0 10px 24px -14px rgba(43,37,48,.5);border:1px solid var(--line)}
+  .lock-art img{display:block;width:100%;height:100%;object-fit:cover}
   .lock-kicker{margin:0;font-size:10px;font-weight:800;letter-spacing:.18em;color:var(--deep-pink)}
   .lock-title{margin:3px 0 0;font-size:22px;font-weight:800;letter-spacing:-.03em}
   .lock-sub{margin:7px 0 18px;font-size:12.5px;color:var(--muted);line-height:1.55}
@@ -267,19 +345,19 @@
   }
   .lockbtn:hover{color:var(--deep-pink);border-color:var(--pink);background:#FFF7F9}
 
-  /* ---------- svg animation ---------- */
+  /* ---------- scene animation ---------- */
   .ch{transform-box:fill-box;transform-origin:bottom center;animation:bob 4.4s ease-in-out infinite}
-  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.6px)}}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.4px)}}
   .eyes{transform-box:fill-box;transform-origin:center;animation:blink 6.2s infinite}
   @keyframes blink{0%,93.5%,100%{transform:scaleY(1)}95.2%{transform:scaleY(.08)}97%{transform:scaleY(1)}}
-  .hands{transform-box:fill-box;animation:type .78s ease-in-out infinite alternate}
-  @keyframes type{from{transform:translateY(0)}to{transform:translateY(-2.2px)}}
-  .glow{animation:glow 4.6s ease-in-out infinite}
-  @keyframes glow{0%,100%{opacity:.16}50%{opacity:.38}}
-  .steam{transform-box:fill-box;transform-origin:bottom center;animation:steam 3.4s ease-in-out infinite}
-  @keyframes steam{0%{opacity:0;transform:translateY(1px) scale(.9)}35%{opacity:.65}100%{opacity:0;transform:translateY(-8px) scale(1.15)}}
-  .minute{transform-box:view-box;transform-origin:196px 58px;animation:tick 60s linear infinite}
-  @keyframes tick{to{transform:rotate(360deg)}}
+  .hands{transform-box:fill-box;animation:type .9s ease-in-out infinite alternate}
+  @keyframes type{from{transform:translateY(0)}to{transform:translateY(-1.6px)}}
+  .seat:not(.live) .hands{animation:none}
+  .glow{opacity:.1}
+  .seat.live .glow{animation:glow 4.2s ease-in-out infinite}
+  @keyframes glow{0%,100%{opacity:.16}50%{opacity:.42}}
+  .steam{transform-box:fill-box;transform-origin:bottom center;animation:steam 3.6s ease-in-out infinite}
+  @keyframes steam{0%{opacity:0;transform:translateY(1px) scale(.9)}35%{opacity:.6}100%{opacity:0;transform:translateY(-7px) scale(1.15)}}
   @media (prefers-reduced-motion: reduce){ *{animation:none!important} }
 </style>
 </head>
@@ -289,25 +367,7 @@
 <div class="lock" id="lock">
   <div class="lock-card" id="lock-card">
     <div class="lock-art" aria-hidden="true">
-      <svg viewBox="0 0 120 120" fill="none">
-        <ellipse cx="60" cy="108" rx="32" ry="5.5" fill="#EFE3D6"/>
-        <rect x="24" y="34" width="72" height="70" rx="18" fill="#F4FCF9" stroke="#CFE7DD" stroke-width="2"/>
-        <rect x="20" y="19" width="80" height="20" rx="9" fill="#F7A8C0"/>
-        <rect x="28" y="24" width="64" height="6" rx="3" fill="#FFFFFF" opacity=".6"/>
-        <g class="lock-pickle">
-          <rect x="46" y="44" width="28" height="50" rx="14" fill="#8FD9C4"/>
-          <circle cx="52" cy="56" r="2.4" fill="#6BC2AA"/>
-          <circle cx="68" cy="62" r="2.2" fill="#6BC2AA"/>
-          <circle cx="54" cy="76" r="2" fill="#6BC2AA"/>
-          <circle cx="70" cy="84" r="2.4" fill="#6BC2AA"/>
-          <ellipse cx="55" cy="63" rx="2.3" ry="2.7" fill="#2B2530"/>
-          <ellipse cx="65" cy="63" rx="2.3" ry="2.7" fill="#2B2530"/>
-          <path d="M57 70 q3 2.6 6 0" stroke="#2B2530" stroke-width="1.6" stroke-linecap="round"/>
-        </g>
-        <circle cx="86" cy="92" r="14" fill="#FFFFFF" stroke="#F7A8C0" stroke-width="2"/>
-        <rect x="80" y="90" width="12" height="10" rx="2.6" fill="#D2657F"/>
-        <path d="M82.6 90 v-3.2 a3.4 3.4 0 0 1 6.8 0 v3.2" stroke="#D2657F" stroke-width="2" fill="none" stroke-linecap="round"/>
-      </svg>
+      <img src="assets/icon-192.png" alt="">
     </div>
     <p class="lock-kicker">PICKLE JOINT OFFICE</p>
     <h1 class="lock-title">피클 합동 비서실</h1>
@@ -332,17 +392,7 @@
 <header class="hero">
   <div class="wrap hero-in">
     <div class="brand">
-      <div class="logo" aria-hidden="true">
-        <svg viewBox="0 0 48 48" fill="none">
-          <rect x="6" y="14" width="36" height="28" rx="5" fill="#F7A8C0"/>
-          <rect x="6" y="14" width="36" height="8" rx="4" fill="#D2657F"/>
-          <rect x="12" y="26" width="7" height="7" rx="1.6" fill="#fff"/>
-          <rect x="21" y="26" width="7" height="7" rx="1.6" fill="#fff"/>
-          <rect x="30" y="26" width="7" height="7" rx="1.6" fill="#fff"/>
-          <rect x="12" y="35" width="7" height="7" rx="1.6" fill="#fff" opacity=".75"/>
-          <rect x="21" y="35" width="16" height="7" rx="1.6" fill="#fff" opacity=".75"/>
-        </svg>
-      </div>
+      <div class="logo" aria-hidden="true"><img src="assets/icon-192.png" alt=""></div>
       <div>
         <p class="kicker">PICKLE JOINT OFFICE</p>
         <h1>피클 합동 비서실</h1>
@@ -363,10 +413,132 @@
     <div class="office-head">
       <span class="tag">OFFICE MAP</span>
       <h2 id="office-title">합동 비서실</h2>
-      <p>세 곳의 비서가 지금 어느 자리에서 무엇을 하는지</p>
+      <p>세 비서가 한 사무실, 각자 자리에서 일하고 있어요</p>
     </div>
-    <div class="rooms" id="rooms">
-      <p class="loading">불러오는 중…</p>
+
+    <div class="room">
+      <!-- 사무실 벽·창문·시계·화분·커피머신 -->
+      <div class="wall" aria-hidden="true">
+        <div class="deco">
+          <svg class="d-window" viewBox="0 0 112 94">
+            <defs>
+              <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#CBEBFA"/><stop offset="1" stop-color="#ECF8FD"/>
+              </linearGradient>
+            </defs>
+            <rect x="6" y="4" width="100" height="74" rx="8" fill="url(#sky)"/>
+            <circle cx="34" cy="26" r="10" fill="#FFE6A0"/>
+            <ellipse cx="74" cy="52" rx="17" ry="5.6" fill="#FFFFFF" opacity=".85"/>
+            <ellipse cx="45" cy="62" rx="12" ry="4.4" fill="#FFFFFF" opacity=".6"/>
+            <rect x="6" y="4" width="100" height="74" rx="8" fill="none" stroke="#FFFFFF" stroke-width="5"/>
+            <path d="M56 6 V76 M8 41 H104" stroke="#FFFFFF" stroke-width="3.2"/>
+            <rect x="2" y="78" width="108" height="7" rx="3.5" fill="#E7D3BA"/>
+            <rect x="82" y="64" width="13" height="13" rx="3" fill="#D9B48B"/>
+            <path d="M88 64 q-9 -13 -14 -5 q7 -1 12 6" fill="#7FBF9A"/>
+            <path d="M88 64 q8 -14 14 -6 q-7 -1 -11 8" fill="#A3D6B5"/>
+          </svg>
+          <svg class="d-board" viewBox="0 0 128 88">
+            <rect x="3" y="3" width="122" height="80" rx="7" fill="#D9B98F"/>
+            <rect x="9" y="9" width="110" height="68" rx="5" fill="#F6E3C6"/>
+            <g transform="rotate(-4 34 34)">
+              <rect x="20" y="18" width="29" height="31" rx="2" fill="#FFF3B0"/>
+              <rect x="25" y="27" width="19" height="2.4" rx="1.2" fill="#C9A94E"/>
+              <rect x="25" y="33" width="14" height="2.4" rx="1.2" fill="#C9A94E"/>
+            </g>
+            <g transform="rotate(3 74 36)">
+              <rect x="60" y="20" width="29" height="33" rx="2" fill="#CDEBDD"/>
+              <rect x="65" y="29" width="19" height="2.4" rx="1.2" fill="#4E9C7C"/>
+              <rect x="65" y="35" width="12" height="2.4" rx="1.2" fill="#4E9C7C"/>
+            </g>
+            <circle cx="34" cy="18" r="2.2" fill="#E0696E"/>
+            <circle cx="74" cy="20" r="2.2" fill="#7C5CFF"/>
+          </svg>
+          <svg class="d-lamp" viewBox="0 0 60 96">
+            <path d="M30 0 V28" stroke="#C9B8A2" stroke-width="2.4"/>
+            <path d="M9 44 q21 -19 42 0 z" fill="#F3B7C6"/>
+            <path d="M9 44 h42" stroke="#DE93A8" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="30" cy="50" r="5.5" fill="#FFF2BE"/>
+            <circle cx="30" cy="50" r="11" fill="#FFF2BE" opacity=".4"/>
+          </svg>
+          <svg class="d-shelf" viewBox="0 0 130 88">
+            <rect x="4" y="70" width="122" height="8" rx="4" fill="#D7B68D"/>
+            <rect x="14" y="44" width="10" height="26" rx="2" fill="#E0696E"/>
+            <rect x="26" y="38" width="9" height="32" rx="2" fill="#7C5CFF"/>
+            <rect x="37" y="48" width="8" height="22" rx="2" fill="#F6C86A"/>
+            <rect x="47" y="42" width="10" height="28" rx="2" fill="#3E9C86"/>
+            <path d="M82 62 h22 l-3 8 h-16 z" fill="#E9B98F"/>
+            <path d="M93 62 q-12 -18 -20 -8 q11 0 18 9" fill="#7FBF9A"/>
+            <path d="M93 62 q12 -16 20 -7 q-10 -1 -17 8" fill="#A3D6B5"/>
+            <path d="M93 62 q0 -22 6 -22 q3 8 -3 22" fill="#63A886"/>
+          </svg>
+          <svg class="d-clock" viewBox="0 0 54 54">
+            <circle cx="27" cy="27" r="21" fill="#FFFDF8" stroke="#E2D2BE" stroke-width="2.6"/>
+            <circle cx="27" cy="9" r="1.4" fill="#C9B8A2"/>
+            <circle cx="27" cy="45" r="1.4" fill="#C9B8A2"/>
+            <circle cx="9" cy="27" r="1.4" fill="#C9B8A2"/>
+            <circle cx="45" cy="27" r="1.4" fill="#C9B8A2"/>
+            <path d="M27 27 V15" stroke="#3A2F3C" stroke-width="2.6" stroke-linecap="round"/>
+            <path d="M27 27 h8" stroke="#3A2F3C" stroke-width="2.2" stroke-linecap="round"/>
+            <circle cx="27" cy="27" r="2" fill="#3A2F3C"/>
+          </svg>
+          <svg class="d-coffee" viewBox="0 0 64 96">
+            <rect x="8" y="24" width="48" height="66" rx="7" fill="#E8E1D7" stroke="#D5C9BA" stroke-width="2"/>
+            <rect x="14" y="30" width="36" height="16" rx="4" fill="#3E3A46"/>
+            <rect x="18" y="34" width="12" height="4" rx="2" fill="#8FD9C4"/>
+            <rect x="18" y="54" width="28" height="6" rx="3" fill="#CFC4B6"/>
+            <rect x="22" y="68" width="20" height="15" rx="3" fill="#FFFFFF" stroke="#D5C9BA" stroke-width="1.6"/>
+            <path d="M42 72 q6 0 6 4.5 q0 4.5 -6 4.5" fill="none" stroke="#D5C9BA" stroke-width="1.6"/>
+            <path class="steam" d="M26 64 q-3 -5 1 -9" stroke="#C9BEB2" stroke-width="2" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="floor">
+        <div class="seats" id="seats">
+          <p class="loading">불러오는 중…</p>
+        </div>
+
+        <!-- 공용 회의 테이블 -->
+        <div class="shared" aria-hidden="true">
+          <svg viewBox="0 0 900 104">
+            <ellipse cx="450" cy="95" rx="330" ry="8" fill="#DCC8B2" opacity=".5"/>
+            <rect x="180" y="52" width="540" height="18" rx="9" fill="#C9A074"/>
+            <rect x="180" y="52" width="540" height="6" rx="3" fill="#E2C39C"/>
+            <rect x="214" y="70" width="14" height="29" rx="3" fill="#B0854F"/>
+            <rect x="672" y="70" width="14" height="29" rx="3" fill="#B0854F"/>
+            <g>
+              <rect x="322" y="28" width="26" height="24" rx="5" fill="#F7C6D4"/>
+              <path d="M348 33 q10 0 10 7 q0 7 -10 7" fill="none" stroke="#E39CB0" stroke-width="2.4"/>
+              <text x="335" y="45" text-anchor="middle" font-size="12" font-weight="800" fill="#B2455C">ㅊ</text>
+            </g>
+            <g>
+              <rect x="360" y="30" width="26" height="22" rx="5" fill="#CDEBDD"/>
+              <path d="M386 35 q10 0 10 6.5 q0 6.5 -10 6.5" fill="none" stroke="#7CC3A8" stroke-width="2.4"/>
+              <text x="373" y="46" text-anchor="middle" font-size="11" font-weight="800" fill="#2F7A63">ㅎ</text>
+            </g>
+            <g>
+              <ellipse cx="470" cy="46" rx="34" ry="8" fill="#FFFFFF" stroke="#EADFD1" stroke-width="2"/>
+              <circle cx="458" cy="41" r="6" fill="#E3B57F"/>
+              <circle cx="472" cy="39" r="6" fill="#D9A76E"/>
+              <circle cx="484" cy="42" r="5.5" fill="#E3B57F"/>
+            </g>
+            <g>
+              <path d="M552 24 h40 v26 a6 6 0 0 1 -6 6 h-28 a6 6 0 0 1 -6 -6 z" fill="#E9EDF1" stroke="#C9D1D8" stroke-width="2"/>
+              <path d="M592 30 q10 4 0 14" fill="none" stroke="#C9D1D8" stroke-width="2.4"/>
+              <rect x="552" y="19" width="40" height="6" rx="3" fill="#B7C2CC"/>
+            </g>
+            <g>
+              <rect x="636" y="30" width="28" height="22" rx="5" fill="#FFE1E9"/>
+              <path d="M664 35 q10 0 10 6.5 q0 6.5 -10 6.5" fill="none" stroke="#EEAFC1" stroke-width="2.4"/>
+              <text x="650" y="46" text-anchor="middle" font-size="11" font-weight="800" fill="#B2455C">K</text>
+            </g>
+            <path d="M714 52 h18 l-2.5 8 h-13 z" fill="#E9B98F"/>
+            <path d="M723 52 q-10 -14 -17 -7 q9 0 15 7" fill="#7FBF9A"/>
+            <path d="M723 52 q10 -13 17 -6 q-8 0 -14 7" fill="#A3D6B5"/>
+          </svg>
+          <span class="shared-cap">공용 회의 테이블 · 커피와 간식은 여기</span>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -413,193 +585,129 @@
   }
   var tint = function (h, t) { return mix(h, "#FFFFFF", t); };
 
-  /* ---------- office svg ---------- */
-  function shadow(id) { return "sh-" + id; }
-
-  function person(c) {
-    var col = c.color, deep = c.deep;
-    var common = "\
-      <rect x='132' y='154' width='56' height='48' rx='20' fill='" + col + "'/>";
-    if (c.id === "chuchu") {
-      return "<g class='ch'>" + common + "\
-        <path d='M137 120 L130 97 L154 111 Z' fill='" + col + "'/>\
-        <path d='M139 118 L135 104 L149 112 Z' fill='" + tint(col, 0.35) + "'/>\
-        <path d='M183 120 L190 97 L166 111 Z' fill='" + col + "'/>\
-        <path d='M181 118 L185 104 L171 112 Z' fill='" + tint(col, 0.35) + "'/>\
-        <rect x='127' y='104' width='66' height='58' rx='25' fill='" + col + "'/>\
-        <ellipse cx='137' cy='141' rx='5' ry='3.4' fill='#F27C9D' opacity='.5'/>\
-        <ellipse cx='183' cy='141' rx='5' ry='3.4' fill='#F27C9D' opacity='.5'/>\
-        <g class='eyes'><ellipse cx='147' cy='130' rx='4.4' ry='5.2' fill='#3A2F3C'/><ellipse cx='173' cy='130' rx='4.4' ry='5.2' fill='#3A2F3C'/></g>\
-        <path d='M155 142 q5 4.5 10 0' stroke='#3A2F3C' stroke-width='2.2' fill='none' stroke-linecap='round'/>\
-        <circle cx='160' cy='173' r='10.5' fill='#FFFFFF' opacity='.94'/>\
-        <text x='160' y='178' text-anchor='middle' font-size='12' font-weight='800' fill='" + deep + "'>ㅊ</text>\
-        <g class='hands'><rect x='121' y='189' width='33' height='9' rx='4.5' fill='" + col + "'/><rect x='166' y='189' width='33' height='9' rx='4.5' fill='" + col + "'/></g>\
-      </g>";
+  /* ---------- office: one desk per character ---------- */
+  function headFace(c, eyes) {
+    if (c.id === "keyring") {
+      /* 토끼 — 둥근 안경 */
+      return "<g stroke='#3A2F3C' stroke-width='2.3' fill='none'>" +
+          "<circle cx='97' cy='91' r='10'/><circle cx='123' cy='91' r='10'/><path d='M107 91 h6'/>" +
+        "</g>" + eyes +
+        "<path d='M108 101 h4 l-2 3 z' fill='#E38AA2'/>" +
+        "<path d='M106 106 q4 3.2 8 0' stroke='#3A2F3C' stroke-width='2' fill='none' stroke-linecap='round'/>" +
+        "<g stroke='#C9A9B4' stroke-width='1.4' stroke-linecap='round' opacity='.75'>" +
+          "<path d='M84 92 h-9'/><path d='M84 97 h-8'/><path d='M136 92 h9'/><path d='M136 97 h8'/>" +
+        "</g>";
     }
-    if (c.id === "haram") {
-      return "<g class='ch'>" + common + "\
-        <rect x='127' y='104' width='66' height='58' rx='25' fill='" + col + "'/>\
-        <path d='M158 103 q4 -13 13 -5 q-8 0 -9 7' fill='" + deep + "' opacity='.45'/>\
-        <path d='M129 127 a31 31 0 0 1 62 0' fill='none' stroke='" + deep + "' stroke-width='4.4' stroke-linecap='round'/>\
-        <rect x='185' y='122' width='9' height='18' rx='4.5' fill='" + deep + "'/>\
-        <path d='M189 140 q0 12 -15 14' fill='none' stroke='" + deep + "' stroke-width='3' stroke-linecap='round'/>\
-        <circle cx='148' cy='133' r='10' fill='#FFFFFF' opacity='.55'/>\
-        <circle cx='172' cy='133' r='10' fill='#FFFFFF' opacity='.55'/>\
-        <g class='eyes'><circle cx='148' cy='133' r='3.1' fill='#3A2F3C'/><circle cx='172' cy='133' r='3.1' fill='#3A2F3C'/></g>\
-        <circle cx='148' cy='133' r='10' fill='none' stroke='#3A2F3C' stroke-width='2.2'/>\
-        <circle cx='172' cy='133' r='10' fill='none' stroke='#3A2F3C' stroke-width='2.2'/>\
-        <path d='M158 133 h4' stroke='#3A2F3C' stroke-width='2.2'/>\
-        <path d='M156 150 q4 3.4 8 0' stroke='#3A2F3C' stroke-width='2' fill='none' stroke-linecap='round'/>\
-        <circle cx='160' cy='173' r='10.5' fill='#FFFFFF' opacity='.94'/>\
-        <text x='160' y='178' text-anchor='middle' font-size='12' font-weight='800' fill='" + deep + "'>ㅎ</text>\
-        <g class='hands'><rect x='121' y='189' width='33' height='9' rx='4.5' fill='" + col + "'/><rect x='166' y='189' width='23' height='9' rx='4.5' fill='" + col + "'/></g>\
-      </g>";
-    }
-    /* keyring */
-    return "<g class='ch'>" + common + "\
-      <circle cx='160' cy='88' r='11.5' fill='none' stroke='" + deep + "' stroke-width='4.2'/>\
-      <rect x='156' y='97' width='8' height='9' rx='2' fill='" + deep + "'/>\
-      <rect x='127' y='105' width='66' height='57' rx='25' fill='" + col + "'/>\
-      <ellipse cx='137' cy='142' rx='5' ry='3.4' fill='" + deep + "' opacity='.3'/>\
-      <ellipse cx='183' cy='142' rx='5' ry='3.4' fill='" + deep + "' opacity='.3'/>\
-      <g class='eyes'><ellipse cx='147' cy='129' rx='4.3' ry='5.1' fill='#3A2F3C'/><ellipse cx='173' cy='129' rx='4.3' ry='5.1' fill='#3A2F3C'/></g>\
-      <path d='M155 141 q5 4.5 10 0' stroke='#3A2F3C' stroke-width='2.2' fill='none' stroke-linecap='round'/>\
-      <g fill='#FFFFFF' opacity='.94'>\
-        <circle cx='160' cy='167' r='6.4'/><rect x='158.2' y='171' width='3.6' height='9'/><rect x='158.2' y='174' width='7.6' height='2.6'/>\
-      </g>\
-      <g class='hands'><rect x='121' y='189' width='33' height='9' rx='4.5' fill='" + col + "'/><rect x='166' y='189' width='33' height='9' rx='4.5' fill='" + col + "'/></g>\
-    </g>";
+    return eyes +
+      "<path d='M104 104 q6 5 12 0' stroke='#3A2F3C' stroke-width='2.2' fill='none' stroke-linecap='round'/>";
   }
 
-  function screen(c) {
-    var a = c.color;
-    if (c.id === "chuchu") {
-      return "\
-        <rect x='50' y='158' width='40' height='5' rx='2.5' fill='" + a + "' opacity='.9'/>\
-        <rect x='50' y='167' width='26' height='4' rx='2' fill='#8E86A0'/>\
-        <rect x='50' y='175' width='34' height='4' rx='2' fill='#8E86A0'/>\
-        <path d='M84 165 l9 6 -9 6 z' fill='" + a + "'/>";
-    }
-    if (c.id === "haram") {
-      return "\
-        <rect x='50' y='157' width='18' height='18' rx='3' fill='" + a + "' opacity='.85'/>\
-        <rect x='72' y='159' width='26' height='4' rx='2' fill='" + a + "' opacity='.9'/>\
-        <rect x='72' y='167' width='20' height='3.4' rx='1.7' fill='#8E86A0'/>\
-        <rect x='50' y='179' width='48' height='3.4' rx='1.7' fill='#8E86A0'/>";
-    }
-    return "\
-      <circle cx='55' cy='160' r='3' fill='" + a + "'/>\
-      <rect x='62' y='158' width='30' height='4' rx='2' fill='#8E86A0'/>\
-      <circle cx='55' cy='170' r='3' fill='" + a + "'/>\
-      <rect x='62' y='168' width='22' height='4' rx='2' fill='#8E86A0'/>\
-      <circle cx='55' cy='180' r='3' fill='" + a + "'/>\
-      <rect x='62' y='178' width='34' height='4' rx='2' fill='#8E86A0'/>";
-  }
+  function figureSVG(c) {
+    var col = c.color, deep = c.deep, body = "", extra = "";
 
-  function props(c) {
-    var a = c.color, d = c.deep;
-    var s = "";
-    /* monitor (everyone, left side of desk) */
-    s += "<g class='mon'>\
-        <ellipse class='glow' cx='75' cy='170' rx='46' ry='34' fill='" + a + "'/>\
-        <rect x='42' y='146' width='66' height='45' rx='5' fill='#3A3346'/>\
-        <rect x='46' y='150' width='58' height='37' rx='3' fill='#241F2E'/>\
-        " + screen(c) + "\
-        <rect x='66' y='191' width='18' height='7' fill='#4A4257'/>\
-        <rect x='57' y='197' width='36' height='4' rx='2' fill='#4A4257'/>\
-      </g>";
     if (c.id === "chuchu") {
-      s += "<g>\
-        <ellipse class='glow' cx='226' cy='176' rx='26' ry='18' fill='" + a + "'/>\
-        <rect x='206' y='162' width='40' height='28' rx='4' fill='#3A3346' transform='rotate(-6 226 176)'/>\
-        <rect x='209' y='165' width='34' height='22' rx='2' fill='#2E2940' transform='rotate(-6 226 176)'/>\
-        <rect x='213' y='170' width='18' height='3.4' rx='1.7' fill='" + a + "' transform='rotate(-6 226 176)'/>\
-        <rect x='213' y='177' width='24' height='3.4' rx='1.7' fill='#7E7691' transform='rotate(-6 226 176)'/>\
-      </g>";
-      s += "<g>\
-        <rect x='252' y='180' width='16' height='18' rx='4' fill='#B9D8C8'/>\
-        <path d='M260 180 q-10 -14 -16 -6 q8 -1 14 8' fill='#6FAF8C'/>\
-        <path d='M260 180 q9 -16 17 -7 q-8 -2 -15 9' fill='#8BC7A6'/>\
-      </g>";
+      body =
+        "<path d='M110 56 q0 -14 7 -18 q3 10 -5 18' fill='" + deep + "' opacity='.55'/>" +
+        "<path d='M110 57 q-10 -10 -18 -6 q8 4 17 9' fill='" + deep + "' opacity='.32'/>" +
+        "<rect x='77' y='54' width='66' height='100' rx='33' fill='" + col + "'/>" +
+        "<ellipse cx='110' cy='151' rx='33' ry='17' fill='" + deep + "' opacity='.14'/>" +
+        "<ellipse cx='87' cy='103' rx='6' ry='3.6' fill='#F27C9D' opacity='.45'/>" +
+        "<ellipse cx='133' cy='103' rx='6' ry='3.6' fill='#F27C9D' opacity='.45'/>" +
+        headFace(c, "<g class='eyes'><ellipse cx='97' cy='91' rx='4.6' ry='5.4' fill='#3A2F3C'/><ellipse cx='123' cy='91' rx='4.6' ry='5.4' fill='#3A2F3C'/></g>") +
+        "<circle cx='110' cy='132' r='11.5' fill='#FFFFFF' opacity='.95'/>" +
+        "<text x='110' y='136.5' text-anchor='middle' font-size='12.5' font-weight='800' fill='" + deep + "'>ㅊ</text>";
     } else if (c.id === "haram") {
-      s += "<g>\
-        <rect x='212' y='180' width='20' height='18' rx='4' fill='#FFFFFF' stroke='" + d + "' stroke-width='1.6'/>\
-        <path d='M232 184 q8 0 8 5 q0 5 -8 5' fill='none' stroke='" + d + "' stroke-width='1.6'/>\
-        <ellipse cx='222' cy='181' rx='9' ry='2.4' fill='" + d + "' opacity='.5'/>\
-        <g class='steam'><path d='M218 176 q-3 -5 1 -9' stroke='#C9BEB2' stroke-width='2' fill='none' stroke-linecap='round'/><path d='M225 176 q3 -6 -1 -10' stroke='#C9BEB2' stroke-width='2' fill='none' stroke-linecap='round'/></g>\
-      </g>";
-      s += "<g transform='rotate(-4 250 118)'>\
-        <rect x='236' y='100' width='28' height='28' rx='3' fill='#FFF0B8'/>\
-        <rect x='241' y='107' width='18' height='3' rx='1.5' fill='#B98A1E' opacity='.7'/>\
-        <rect x='241' y='114' width='14' height='3' rx='1.5' fill='#B98A1E' opacity='.7'/>\
-      </g>";
-      s += "<g transform='rotate(5 292 112)'><rect x='280' y='96' width='24' height='24' rx='3' fill='#DDF0C8'/>\
-        <rect x='284' y='103' width='16' height='3' rx='1.5' fill='#5E8C3A' opacity='.7'/></g>";
+      body =
+        "<path d='M104 56 q2 -12 10 -11 q-5 4 -4 11' fill='" + deep + "' opacity='.5'/>" +
+        "<rect x='77' y='54' width='66' height='100' rx='33' fill='" + col + "'/>" +
+        "<ellipse cx='110' cy='151' rx='33' ry='17' fill='" + deep + "' opacity='.14'/>" +
+        "<ellipse cx='88' cy='103' rx='5.5' ry='3.4' fill='" + deep + "' opacity='.28'/>" +
+        "<ellipse cx='132' cy='103' rx='5.5' ry='3.4' fill='" + deep + "' opacity='.28'/>" +
+        headFace(c, "<g class='eyes'><ellipse cx='97' cy='91' rx='4.4' ry='5.2' fill='#3A2F3C'/><ellipse cx='123' cy='91' rx='4.4' ry='5.2' fill='#3A2F3C'/></g>") +
+        /* 헤드셋 */
+        "<path d='M79 91 a31 31 0 0 1 62 0' fill='none' stroke='" + deep + "' stroke-width='3.6' stroke-linecap='round'/>" +
+        "<rect x='71' y='87' width='8.5' height='16' rx='4.2' fill='" + deep + "'/>" +
+        "<rect x='140.5' y='87' width='8.5' height='16' rx='4.2' fill='" + deep + "'/>" +
+        "<path d='M140 100 q7 7 -6 9' fill='none' stroke='" + deep + "' stroke-width='2.4' stroke-linecap='round'/>" +
+        "<circle cx='110' cy='132' r='11.5' fill='#FFFFFF' opacity='.95'/>" +
+        "<text x='110' y='136.5' text-anchor='middle' font-size='12.5' font-weight='800' fill='" + deep + "'>ㅎ</text>";
     } else {
-      s += "<g>\
-        <rect x='200' y='178' width='46' height='9' rx='2' fill='#FFFFFF' stroke='#E0D6C8'/>\
-        <rect x='203' y='171' width='40' height='8' rx='2' fill='#FFFFFF' stroke='#E0D6C8'/>\
-        <rect x='206' y='164' width='34' height='8' rx='2' fill='#FFFFFF' stroke='#E0D6C8'/>\
-      </g>";
-      s += "<g>\
-        <rect x='256' y='180' width='16' height='18' rx='4' fill='#E2C48F'/>\
-        <path d='M264 180 q-9 -13 -15 -5 q7 0 12 8' fill='#8CB87A'/>\
-        <path d='M264 180 q8 -15 15 -6 q-7 -1 -13 9' fill='#A6CE93'/>\
-      </g>";
+      /* 키링 — 분홍 토끼 + 안경 */
+      body =
+        "<g>" +
+          "<rect x='88' y='8' width='13' height='46' rx='6.5' fill='#FFD3DF' transform='rotate(-9 94.5 31)'/>" +
+          "<rect x='91' y='15' width='6' height='32' rx='3' fill='#F5A9BF' transform='rotate(-9 94.5 31)'/>" +
+          "<rect x='119' y='8' width='13' height='46' rx='6.5' fill='#FFD3DF' transform='rotate(9 125.5 31)'/>" +
+          "<rect x='123' y='15' width='6' height='32' rx='3' fill='#F5A9BF' transform='rotate(9 125.5 31)'/>" +
+        "</g>" +
+        "<rect x='78' y='50' width='64' height='104' rx='31' fill='#FFE1E9'/>" +
+        "<rect x='78' y='50' width='64' height='104' rx='31' fill='none' stroke='#F0C3D1' stroke-width='1.6'/>" +
+        "<ellipse cx='110' cy='151' rx='32' ry='17' fill='#E38AA2' opacity='.14'/>" +
+        "<ellipse cx='86' cy='104' rx='5.5' ry='3.4' fill='#F289A6' opacity='.4'/>" +
+        "<ellipse cx='134' cy='104' rx='5.5' ry='3.4' fill='#F289A6' opacity='.4'/>" +
+        headFace(c, "<g class='eyes'><ellipse cx='97' cy='91' rx='3.4' ry='3.9' fill='#3A2F3C'/><ellipse cx='123' cy='91' rx='3.4' ry='3.9' fill='#3A2F3C'/></g>") +
+        "<circle cx='110' cy='133' r='11.5' fill='#FFFFFF' opacity='.95'/>" +
+        "<text x='110' y='137.5' text-anchor='middle' font-size='12.5' font-weight='800' fill='" + deep + "'>K</text>" +
+        /* 열쇠고리 */
+        "<circle cx='150' cy='126' r='6' fill='none' stroke='" + deep + "' stroke-width='3.2'/>" +
+        "<rect x='147' y='131' width='6' height='9' rx='2' fill='" + deep + "'/>";
     }
-    return s;
-  }
 
-  function roomSVG(c) {
-    var g = "g_" + c.id, a = c.color, d = c.deep;
-    return "<svg viewBox='0 0 320 292' role='img' aria-label='" + esc(c.name) + "의 자리'>\
-      <defs>\
-        <linearGradient id='wall-" + g + "' x1='0' y1='0' x2='0' y2='1'>\
-          <stop offset='0' stop-color='" + tint(a, 0.78) + "'/>\
-          <stop offset='1' stop-color='" + tint(a, 0.92) + "'/>\
-        </linearGradient>\
-        <linearGradient id='floor-" + g + "' x1='0' y1='0' x2='0' y2='1'>\
-          <stop offset='0' stop-color='#EFE1D2'/>\
-          <stop offset='1' stop-color='#E7D7C5'/>\
-        </linearGradient>\
-      </defs>\
-      <rect width='320' height='292' fill='url(#wall-" + g + ")'/>\
-      <rect width='320' height='204' fill='none'/>\
-      <rect y='196' width='320' height='9' fill='#FFFFFF' opacity='.55'/>\
-      <rect y='204' width='320' height='88' fill='url(#floor-" + g + ")'/>\
-      <path d='M0 238 H320 M0 266 H320' stroke='#D8C4AE' stroke-width='1.6' opacity='.7'/>\
-      <ellipse cx='160' cy='248' rx='124' ry='27' fill='" + a + "' opacity='.2'/>\
-      <g>\
-        <rect x='16' y='32' width='88' height='74' rx='9' fill='#BFE6F7'/>\
-        <circle cx='44' cy='56' r='10' fill='#FFF6C9'/>\
-        <ellipse cx='80' cy='88' rx='21' ry='7' fill='#FFFFFF' opacity='.8'/>\
-        <ellipse cx='38' cy='84' rx='14' ry='5' fill='#FFFFFF' opacity='.55'/>\
-        <rect x='16' y='32' width='88' height='74' rx='9' fill='none' stroke='#FFFFFF' stroke-width='5'/>\
-        <path d='M60 34 V104 M18 69 H102' stroke='#FFFFFF' stroke-width='3.4'/>\
-      </g>\
-      <g>\
-        <rect x='240' y='96' width='64' height='6' rx='3' fill='#D6BEA4'/>\
-        <rect x='245' y='76' width='9' height='20' rx='1.5' fill='#E0696E'/>\
-        <rect x='256' y='70' width='8' height='26' rx='1.5' fill='#7C5CFF'/>\
-        <rect x='266' y='80' width='7' height='16' rx='1.5' fill='#F6C86A'/>\
-        <rect x='275' y='74' width='9' height='22' rx='1.5' fill='#3E9C86'/>\
-      </g>\
-      <g transform='translate(196,58)'>\
-        <circle r='16' fill='#FFFFFF'/>\
-        <circle r='16' fill='none' stroke='" + d + "' stroke-width='2' opacity='.45'/>\
-        <circle r='1.8' fill='#3A2F3C'/>\
-        <line class='minute' x1='0' y1='0' x2='0' y2='-11' stroke='#3A2F3C' stroke-width='2' stroke-linecap='round'/>\
-        <line x1='0' y1='0' x2='5.5' y2='3' stroke='#3A2F3C' stroke-width='1.6' stroke-linecap='round'/>\
-      </g>\
-      " + person(c) + "\
-      <g>\
-        <rect x='30' y='198' width='260' height='13' rx='6.5' fill='#C89B6C'/>\
-        <rect x='30' y='198' width='260' height='5' rx='2.5' fill='" + tint("#C89B6C", 0.28) + "'/>\
-        <rect x='44' y='211' width='9' height='44' rx='2' fill='#B0854F'/>\
-        <rect x='267' y='211' width='9' height='44' rx='2' fill='#B0854F'/>\
-      </g>\
-      " + props(c) + "\
-    </svg>";
+    /* 모니터 */
+    var monitor =
+      "<g class='mon'>" +
+        "<ellipse class='glow' cx='62' cy='122' rx='38' ry='26' fill='" + col + "'/>" +
+        "<rect x='34' y='102' width='56' height='38' rx='4.5' fill='#3A3346'/>" +
+        "<rect x='37' y='105' width='50' height='32' rx='3' fill='#241F2E'/>" +
+        "<rect x='41' y='110' width='24' height='3.6' rx='1.8' fill='" + col + "'/>" +
+        "<rect x='41' y='117' width='34' height='3' rx='1.5' fill='#7E7691'/>" +
+        "<rect x='41' y='123' width='28' height='3' rx='1.5' fill='#7E7691'/>" +
+        "<rect x='41' y='129' width='16' height='3' rx='1.5' fill='" + tint(col, 0.3) + "'/>" +
+        "<rect x='57' y='140' width='10' height='10' fill='#4A4257'/>" +
+      "</g>";
+
+    /* 책상 */
+    var desk =
+      "<g>" +
+        "<rect x='30' y='149' width='160' height='12' rx='6' fill='#CFA87B'/>" +
+        "<rect x='30' y='149' width='160' height='5' rx='2.5' fill='#E2C6A1'/>" +
+        "<rect x='36' y='161' width='148' height='33' rx='5' fill='#B98F60'/>" +
+        "<rect x='44' y='166' width='132' height='2.6' rx='1.3' fill='#A87F52' opacity='.55'/>" +
+      "</g>";
+
+    /* 책상 위 소품 */
+    extra =
+      "<g>" +
+        "<rect x='150' y='126' width='24' height='23' rx='4' fill='#FFFFFF' stroke='#E0D6C8' stroke-width='1.4'/>" +
+        "<path d='M174 130 q8 0 8 5 q0 5 -8 5' fill='none' stroke='#E0D6C8' stroke-width='1.4'/>" +
+        "<path class='steam' d='M158 121 q-3 -5 1 -9' stroke='#CFC4B6' stroke-width='2' fill='none' stroke-linecap='round'/>" +
+      "</g>" +
+      "<g transform='rotate(-5 166 114)'>" +
+        "<rect x='152' y='104' width='27' height='24' rx='2' fill='#FFF0B8'/>" +
+        "<rect x='156' y='111' width='18' height='2.6' rx='1.3' fill='#B98A1E' opacity='.65'/>" +
+        "<rect x='156' y='117' width='12' height='2.6' rx='1.3' fill='#B98A1E' opacity='.65'/>" +
+      "</g>" +
+      /* 바닥 화분 */
+      "<g>" +
+        "<path d='M196 170 h20 l-3 24 h-14 z' fill='#DDB08A'/>" +
+        "<path d='M206 170 q-11 -17 -18 -8 q9 0 16 9' fill='#7FBF9A'/>" +
+        "<path d='M206 170 q11 -16 18 -7 q-9 -1 -14 9' fill='#A3D6B5'/>" +
+        "<path d='M206 170 q1 -22 7 -22 q2 9 -3 22' fill='#63A886'/>" +
+      "</g>";
+
+    return "<svg viewBox='0 0 220 200' role='img' aria-label='" + esc(c.name) + " 자리'>" +
+      "<ellipse cx='110' cy='193' rx='80' ry='7' fill='#C9AC8B' opacity='.32'/>" +
+      "<rect x='66' y='96' width='88' height='62' rx='20' fill='#E7DCCB'/>" +
+      "<rect x='72' y='102' width='76' height='50' rx='15' fill='#F2E9DB'/>" +
+      "<g class='ch'>" + body + "</g>" +
+      monitor +
+      desk +
+      extra +
+      "<g class='ch hands'>" +
+        "<ellipse cx='86' cy='146' rx='9' ry='5' fill='" + (c.id === "keyring" ? "#FFE1E9" : col) + "' stroke='" + (c.id === "keyring" ? "#F0C3D1" : tint(col, 0.12)) + "' stroke-width='1'/>" +
+        "<ellipse cx='136' cy='146' rx='9' ry='5' fill='" + (c.id === "keyring" ? "#FFE1E9" : col) + "' stroke='" + (c.id === "keyring" ? "#F0C3D1" : tint(col, 0.12)) + "' stroke-width='1'/>" +
+      "</g>" +
+    "</svg>";
   }
 
   /* ---------- renderers ---------- */
@@ -612,24 +720,28 @@
     return "wait";
   }
 
-  function renderRooms(data) {
-    $("#rooms").innerHTML = data.characters.map(function (c) {
-      var idle = /대기|휴식|중지/.test(c.state || "");
+  function renderSeats(data) {
+    $("#seats").innerHTML = (data.characters || []).map(function (c) {
+      var idle = /대기|휴식|중지|오프라인/.test(c.state || "");
       var pl = presenceLabel(c.id);
-      return "<article class='room' style='--c:" + c.color + ";--d:" + c.deep + "'>" +
-        "<div class='room-visual'>" + roomSVG(c) + "</div>" +
-        "<div class='room-body'>" +
-          "<div class='id-row'>" +
-            "<span class='mark'>" + esc(c.mark) + "</span>" +
-            "<div><h3>" + esc(c.name) + "</h3><span class='dev'>" + esc(c.device) + " · " + esc(c.role) +
-              (pl ? "<em class='presence" + (pl === "지금 연결" ? " on" : "") + "'>" + esc(pl) + "</em>" : "") +
-              "</span></div>" +
-            "<span class='state" + (idle ? " idle" : "") + "'>" + esc(c.state) + "</span>" +
-          "</div>" +
-          "<p class='now'>" + esc(c.now) + "</p>" +
-          "<ul class='duties'>" + (c.duties || []).map(function (d) { return "<li>" + esc(d) + "</li>"; }).join("") + "</ul>" +
-          (c.next ? "<div class='next'>" + esc(c.next) + "</div>" : "") +
-        "</div></article>";
+      return "<article class='seat" + (idle ? "" : " live") + "' style='--c:" + esc(c.color) + ";--d:" + esc(c.deep) + "'>" +
+        "<p class='bubble'>" +
+          "<span class='bnow'>" + esc(c.now) + "</span>" +
+          (c.next ? "<span class='bnext'>" + esc(c.next) + "</span>" : "") +
+        "</p>" +
+        "<div class='figure'>" + figureSVG(c) + "</div>" +
+        "<div class='plate'>" +
+          "<span class='mark' aria-hidden='true'>" + esc(c.mark) + "</span>" +
+          "<span class='who'><b>" + esc(c.name) + "</b>" +
+            "<em>" + esc(c.device) + " · " + esc(c.role) +
+            (pl ? " · <span class='pres" + (pl === "지금 연결" ? " on" : "") + "'>" + esc(pl) + "</span>" : "") +
+            "</em></span>" +
+          "<span class='state" + (idle ? " idle" : "") + "'><i class='sd'></i>" + esc(c.state || "대기") + "</span>" +
+        "</div>" +
+        (c.duties && c.duties.length
+          ? "<ul class='duties'>" + c.duties.map(function (d) { return "<li>" + esc(d) + "</li>"; }).join("") + "</ul>"
+          : "") +
+      "</article>";
     }).join("");
   }
 
@@ -641,8 +753,8 @@
         (day.slots || []).map(function (s) {
           return "<a class='slot' href='" + esc(s.url) + "' target='_blank' rel='noopener'>" +
             "<span class='dot' style='--dc:" + esc(s.color) + "'></span>" +
-            "<span class='slot-meta'><em>" + esc(s.channel) + "</em> · " + esc(s.type) + " · " + esc(day.time) + "</span>" +
             "<span class='slot-title'>" + esc(s.title) + "</span>" +
+            "<span class='slot-meta'><em>" + esc(s.channel) + "</em><span>" + esc(s.type) + "</span><span>" + esc(day.time) + "</span></span>" +
             "<span class='arrow'>↗</span></a>";
         }).join("") +
       "</div>";
@@ -696,12 +808,16 @@
   }
 
   function renderTimeline(data) {
-    var items = (data.timeline || []).map(function (t) {
-      return "<li class='" + (t.done ? "done" : "") + "'><span class='t'>" + esc(t.time) + "</span>" +
+    var items = data.timeline || [];
+    var nextIdx = -1;
+    for (var i = 0; i < items.length; i++) { if (!items[i].done) { nextIdx = i; break; } }
+    var html = items.map(function (t, i) {
+      return "<li class='" + (t.done ? "done" : "") + (i === nextIdx ? " now" : "") + "'>" +
+        "<span class='t'>" + esc(t.time) + "</span>" +
         "<span class='p'></span><span class='l'>" + esc(t.label) + "<span class='o'>" + esc(t.owner) + "</span></span></li>";
     }).join("");
     return "<article class='card wide'><h3><span class='ico'>🗓️</span>오늘의 타임라인<span class='chip'>11/27 (금)</span></h3>" +
-      "<ul class='tl'>" + items + "</ul></article>";
+      "<ul class='tl'>" + html + "</ul></article>";
   }
 
   /* ---------- clock ---------- */
@@ -856,7 +972,7 @@
     }).then(function (p) {
       if (!p || typeof p !== "object") return;
       presence = p;
-      if (lastData) renderRooms(lastData);
+      if (lastData) renderSeats(lastData);
     }).catch(function () { /* 접속 표시는 없어도 된다 */ });
   }
   function presenceLabel(id) {
@@ -880,7 +996,7 @@
   function renderAll(data) {
     lastData = data;
     $("#headline").textContent = data.headline || "";
-    renderRooms(data);
+    renderSeats(data);
     $("#board").innerHTML = renderYoutube(data) + renderPublishing(data) + renderCampaigns(data) + renderTimeline(data);
     $("#updated").textContent = "현황판 갱신 " + ago(data.updated_at);
     $("#foot-updated").textContent = stamp(data.updated_at) + " (" + ago(data.updated_at) + ")";
@@ -895,7 +1011,7 @@
   }
 
   function clearApp() {
-    $("#rooms").innerHTML = "<p class='loading'>불러오는 중…</p>";
+    $("#seats").innerHTML = "<p class='loading'>불러오는 중…</p>";
     $("#board").innerHTML = "<p class='loading'>불러오는 중…</p>";
     $("#headline").textContent = "현황을 불러오는 중…";
     $("#updated").textContent = "현황판 갱신 확인 중";
