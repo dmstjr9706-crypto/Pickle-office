@@ -25,7 +25,10 @@ scripts/set_status.py        캐릭터의 "지금" 한 줄만 빠르게 바꾸�
 python3 scripts/validate_status.py          # 형식 + 개인정보 패턴 검사
 git add -A && git commit -m "status: 11/27 18시 공개 확인 반영"
 git push
+git push -f origin main:gh-pages            # 배포 브랜치도 같이 밀기
 ```
+
+한 줄로 끝내려면 `./scripts/publish.sh "status: 11/27 18시 공개 확인 반영"` — 검사·커밋·main 푸시·gh-pages 푸시를 순서대로 합니다.
 
 푸시 후 1분 안에 라이브 페이지에 반영됩니다(캐시 때문에 최대 1~2분).
 
@@ -66,5 +69,9 @@ python3 scripts/set_status.py slot 2026-11-27 kvCvSltdsEU "공개 완료"
 
 ## 배포
 
-GitHub Pages — `main` 브랜치 루트. `index.html`을 루트에 두면 별도 워크플로가 필요 없습니다.
-`.nojekyll`이 있어 Jekyll 처리 없이 그대로 올라갑니다.
+- GitHub Pages — 라이브 주소 https://dmstjr9706-crypto.github.io/Pickle-office/
+- **`main`** = 원본(작업 브랜치) · **`gh-pages`** = 배포 브랜치. Pages가 `gh-pages` 루트에서 빌드되므로,
+  커밋할 때마다 `git push -f origin main:gh-pages`로 두 브랜치를 같은 커밋에 맞춘다(`scripts/publish.sh`가 이걸 한다).
+- `index.html`이 루트에 있고 `.nojekyll`이 있어 Jekyll 처리 없이 그대로 올라간다.
+- Pages가 `main`을 바라보게 바꾸고 싶다면 저장소 **Settings → Pages → Branch**에서 `main` / `/ (root)`로 선택하면 된다.
+- 빌드 상태: `gh api repos/dmstjr9706-crypto/Pickle-office/pages --jq .status`
