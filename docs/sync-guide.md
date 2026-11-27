@@ -1,7 +1,10 @@
 # 현황 동기화 가이드 (sync guide)
 
 이 문서는 `data/status.json`을 **누가, 언제, 무엇을 고치는지** 정한 규칙입니다.
-화면(`index.html`)은 이 파일만 읽으므로, 데이터 형식만 지키면 디자인을 건드릴 필요가 없습니다.
+화면(`index.html`)은 암호화된 `data/status.enc.json`만 읽으므로, 데이터 형식만 지키면 디자인을 건드릴 필요가 없습니다.
+
+> **평문은 로컬에만** — `data/status.json`은 `.gitignore`에 있어 저장소에 올라가지 않습니다.
+> 올릴 때는 `./scripts/publish.sh`가 검사 → 암호화 → 커밋 → 푸시를 한 번에 합니다. 수동으로 올리지 마세요.
 
 ---
 
@@ -9,17 +12,24 @@
 
 | 규칙 | 내용 |
 |---|---|
-| 단일 출처 | 화면에 보이는 모든 값은 `data/status.json`에서만 온다. `index.html`에 문구를 직접 쓰지 않는다 |
+| 단일 출처 | 화면에 보이는 모든 값은 `data/status.json`에서만 온다. `index.html`에 문구를 직접 쓰지 않는다. 화면은 이 파일을 암호화한 `data/status.enc.json`만 내려받는다 |
 | 갱신 시각 | 값을 고칠 때마다 `updated_at`을 현재 KST 시각(`YYYY-MM-DDTHH:MM:SS+09:00`)으로 바꾼다 |
 | 기록자 | `updated_by`에 고친 주체를 적는다(`초큐티`, `하람 비서` 대신 메인/협업 기기 기준 표기) |
 | 사실만 | 확인된 것만 적는다. "예약 완료"와 "공개 완료"는 다르다 — 스튜디오에서 상태를 본 뒤에 바꾼다 |
 | 하루 단위 | 날짜가 바뀌면 `youtube`의 `오늘` 블록을 지우고, 내일 블록을 오늘로 올린 뒤 새 내일 블록을 추가한다 |
 | 개인정보 금지 | 아래 4장 참고. 저장소는 공개다 |
 
-검사 → 커밋 → 푸시. 푸시 후 1분 안에 반영된다.
+검사 → 암호화 → 커밋 → 푸시. 푸시 후 1분 안에 반영된다.
 
 ```bash
-python3 scripts/validate_status.py && git add -A && git commit -m "status: …" && git push
+./scripts/publish.sh "status: …"
+```
+
+손으로 할 때(권장하지 않음):
+
+```bash
+python3 scripts/validate_status.py && python3 scripts/encrypt_status.py \
+  && git add -A && git commit -m "status: …" && git push && git push -f origin main:gh-pages
 ```
 
 ---
@@ -115,9 +125,10 @@ python3 scripts/validate_status.py && git add -A && git commit -m "status: …" 
 ## 3. 반영 확인
 
 1. `python3 scripts/validate_status.py` — 오류 0이면 통과, 요약 표를 보여 준다.
-2. `git commit` / `git push`.
-3. 라이브 주소를 열어 상단 시계 옆 "현황판 갱신 N분 전"이 방금으로 바뀌었는지 확인한다.
+2. `./scripts/publish.sh "status: …"` — 암호화와 푸시까지 한 번에.
+3. 라이브 주소를 열어 잠금 화면이 뜨는지, 비밀번호를 넣었을 때 상단 시계 옆 "현황판 갱신 N분 전"이 방금으로 바뀌었는지 확인한다.
    (반영이 안 보이면 강력 새로고침 — `index.html`이 `?v=타임스탬프`로 캐시를 피한다.)
+4. 저장소에 `data/status.json`이 없는지(`git ls-files data/`) 확인한다. 평문이 보이면 즉시 `git rm --cached data/status.json`.
 
 ---
 
@@ -127,6 +138,8 @@ python3 scripts/validate_status.py && git add -A && git commit -m "status: …" 
 
 - 전화번호, 집 주소, 생년월일, 주민등록번호
 - 계좌번호, 카드번호, 비밀번호, 인증번호, API 키, 토큰, 쿠키
+- **잠금 비밀번호** — 코드·README·커밋 메시지·HTML/JS 어디에도 쓰지 않는다. `encrypt_status.py`가 읽는 것 외에는 다루지 않는다
+- **평문 현황 데이터** — `data/status.json`은 저장소에 올리지 않는다. 올리는 것은 `data/status.enc.json` 하나뿐
 - 이메일 주소 원문(계정을 가리킬 때는 `lifecheatlab`, `7728194` 같은 **공개 아이디**만)
 - 로그인 화면 캡처, 세션 정보, 결제 정보
 - 제3자의 실명·연락처 등 당사자가 공개를 원하지 않는 정보

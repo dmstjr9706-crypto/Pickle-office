@@ -105,6 +105,7 @@ def main() -> int:
     )
     print(ok.stdout.strip() or ok.stderr.strip())
     print("→ data/status.json 저장 완료:", args.cmd)
+    print("   올리기: ./scripts/publish.sh \"status: …\"  (검사 → 암호화 → 커밋 → 푸시)")
     return ok.returncode
 
 

@@ -1,0 +1,7 @@
+# 로컬 전용 — 저장소(공개)에는 올리지 않는다
+.office-secret
+data/status.json
+data/*.tmp
+
+# OS 쓰레기
+.DS_Store

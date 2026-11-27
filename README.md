@@ -5,13 +5,17 @@
 
 - **라이브 주소** — https://dmstjr9706-crypto.github.io/Pickle-office/
 - **구성** — 상단은 3개 방으로 된 오피스 맵(SVG 캐릭터가 각자 자리에서 움직임), 하단은 유튜브 예약 · 블로그/클립/쓰레드 · 체험단/크몽/공모전 · 오늘의 타임라인 현황판
-- **기술** — `index.html` 한 장 + `data/status.json` 하나. 빌드 없음, 외부 라이브러리·폰트·추적 없음. GitHub Pages(`main` / root)로 배포
+- **잠금** — 페이지에 들어가면 먼저 비밀번호 잠금 화면이 뜨고, 비밀번호를 넣어야 현황판이 복호화되어 그려진다. 틀리면 열리지 않는다
+- **기술** — `index.html` 한 장 + 암호화된 `data/status.enc.json` 하나. 빌드 없음, 외부 라이브러리·폰트·추적 없음. GitHub Pages(`gh-pages` / root)로 배포
 
 ```
-index.html            화면 (HTML + CSS + 렌더링 스크립트, 외부 의존성 없음)
-data/status.json      ← 현황 데이터. 이 파일만 고치면 화면이 바뀐다
-docs/sync-guide.md    갱신 규칙 · 항목별 작성법 · 공개 금지 정보
+index.html                   화면 (HTML + CSS + 잠금·복호화·렌더링 스크립트, 외부 의존성 없음)
+data/status.json             ← 평문 현황. 로컬에만 두고 저장소에는 올리지 않는다(.gitignore)
+data/status.enc.json         ← 저장소·페이지가 보는 유일한 데이터. PBKDF2 + AES-256-GCM 암호문
+.office-secret               비밀번호 한 줄 (로컬 전용, .gitignore)
+docs/sync-guide.md           갱신 규칙 · 항목별 작성법 · 공개 금지 정보
 scripts/validate_status.py   커밋 전 검사 (형식 + 개인정보 패턴)
+scripts/encrypt_status.py    평문 → 암호문 (PBKDF2-HMAC-SHA256 → AES-256-GCM)
 scripts/set_status.py        캐릭터의 "지금" 한 줄만 빠르게 바꾸는 도우미
 ```
 
@@ -19,18 +23,27 @@ scripts/set_status.py        캐릭터의 "지금" 한 줄만 빠르게 바꾸�
 
 1. `data/status.json`을 연다. (`updated_at`은 `2026-11-27T14:30:00+09:00` 형식)
 2. 바꿀 항목만 수정한다 — 캐릭터의 `now` / `state`, 유튜브 `slots`, `publishing`, `campaigns`, `timeline`.
-3. 검사하고 올린다.
+3. 한 줄로 검사·암호화·커밋·푸시한다.
 
 ```bash
-python3 scripts/validate_status.py          # 형식 + 개인정보 패턴 검사
-git add -A && git commit -m "status: 11/27 18시 공개 확인 반영"
-git push
-git push -f origin main:gh-pages            # 배포 브랜치도 같이 밀기
+./scripts/publish.sh "status: 11/27 18시 공개 확인 반영"
 ```
 
-한 줄로 끝내려면 `./scripts/publish.sh "status: 11/27 18시 공개 확인 반영"` — 검사·커밋·main 푸시·gh-pages 푸시를 순서대로 합니다.
+`publish.sh`가 순서대로 하는 일:
+
+1. `validate_status.py` — 형식 + 개인정보 패턴 검사
+2. `encrypt_status.py` — `data/status.json` → `data/status.enc.json` (비밀번호는 `.office-secret` 또는 환경변수 `PICKLE_OFFICE_SECRET`에서 읽음)
+3. **비밀번호 평문 유출 검사** — 스테이징된 내용에 비밀번호가 있으면 커밋을 멈춘다. `data/status.json`이 실수로 추적되면 역시 멈춘다
+4. 커밋 → `main` 푸시 → `main`을 `gh-pages`로 강제 푸시
 
 푸시 후 1분 안에 라이브 페이지에 반영됩니다(캐시 때문에 최대 1~2분).
+
+암호화만 따로 돌릴 때:
+
+```bash
+python3 scripts/encrypt_status.py            # 기존 salt 재사용 (기억된 키 유지)
+python3 scripts/encrypt_status.py --new-salt # salt 새로 (모든 기기의 기억된 열쇠 무효)
+```
 
 ### 한 줄만 바꿀 때
 
@@ -46,13 +59,21 @@ python3 scripts/set_status.py done "18:00" true
 python3 scripts/set_status.py slot 2026-11-27 kvCvSltdsEU "공개 완료"
 ```
 
-`set_status.py`는 `updated_at`을 현재 시각으로 자동 갱신합니다.
+`set_status.py`는 `updated_at`을 현재 시각으로 자동 갱신합니다. 바꾼 뒤에는 `./scripts/publish.sh`로 올립니다.
+
+## 잠금 화면
+
+- 접속하면 잠금 화면만 보이고, 현황 데이터(JSON)는 페이지에 담겨 있지 않다 — 암호문만 내려받는다.
+- 비밀번호가 맞아야 브라우저에서 Web Crypto(`crypto.subtle`)로 AES-256-GCM 복호화가 되고, 그때 오피스 맵과 현황판이 그려진다.
+- **이 기기에서 기억하기** — 체크하면 복호화에 쓰는 키만 `localStorage`에 남겨 다음 방문에 비밀번호 없이 연다. (비밀번호 자체는 저장하지 않는다)
+- 상단 오른쪽 **잠그기** — 기억한 키를 지우고 잠금 화면으로 돌아간다. 화면에 그려진 내용도 함께 지운다.
+- 형제·지인에게 주소를 알려 줄 때는 비밀번호를 따로 전달해야 한다.
 
 ## GitHub 연결이 없는 기기(협업 기기)와 함께 쓰는 법
 
 협업 기기는 저장소를 직접 고칠 수 없으므로 두 가지 방식으로 맞춥니다.
 
-1. **조회용 URL 공유** — 위 라이브 주소만 알려 주면 읽기 전용으로 같은 현황을 본다.
+1. **조회용 URL 공유** — 위 라이브 주소와 비밀번호를 알려 주면 읽기 전용으로 같은 현황을 본다.
 2. **대신 반영** — 협업 기기가 클론 대화(또는 메일)로 "지금 하는 일 / 완료한 일"을 보내면,
    메인 기기 쪽에서 `data/status.json`의 해당 캐릭터 항목을 고쳐 푸시한다. 이때도 위 검사 스크립트를 먼저 돌린다.
 
@@ -63,9 +84,10 @@ python3 scripts/set_status.py slot 2026-11-27 kvCvSltdsEU "공개 완료"
 - 집 주소, 전화번호, 생년월일, 계좌번호, 비밀번호, 이메일 원문, 주민등록번호
 - 로그인 세션·쿠키·토큰, API 키
 - 상대방이 공개를 원하지 않는 개인 정보(실명 위주 서술 등)
+- **평문 현황 데이터(`data/status.json`)와 잠금 비밀번호** — 이 둘은 `.gitignore`에 있고, 저장소에는 암호문만 올라간다
 
-넣어도 되는 것: 업무 현황, 콘텐츠 제목·공개 시각, 공개 영상·블로그 링크, 3곳 역할 분담, 캐릭터 상태.
-`scripts/validate_status.py`가 전화번호·이메일·주민번호·계좌번호 패턴을 잡아 커밋을 막아 줍니다.
+넣어도 되는 것: 업무 현황, 콘텐츠 제목·공개 시각, 공개 영상·블로그 링크, 3곳 역할 분담, 캐릭터 상태(단, 위 평문 규칙에 따라 암호화된 파일로만).
+`scripts/validate_status.py`가 전화번호·이메일·주민번호·계좌번호 패턴을 잡아 커밋을 막고, `publish.sh`가 비밀번호 평문이 스테이징되면 커밋을 멈춥니다.
 
 ## 배포
 
