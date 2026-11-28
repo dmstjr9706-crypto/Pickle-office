@@ -25,6 +25,12 @@
     python3 scripts/office_db.py presence chuchu
     python3 scripts/office_db.py timeline 18:00 --done true
 
+    # 4인 소통칸 (암호문 안 messages 배열, 최근 60개 유지)
+    python3 scripts/office_db.py msg --from chuchu --to all --text "18시 6편 공개 확인 부탁해요"
+    python3 scripts/office_db.py msg --from keyring --to chuchu --text "07:30 보고 완료"
+    python3 scripts/office_db.py msgs              # 최근 20개
+    python3 scripts/office_db.py msgs --to vee     # 부이에게 온 말만
+
 종료 코드: 0 = 성공, 1 = 실패, 2 = 설정·인증 문제
 """
 from __future__ import annotations
@@ -35,6 +41,7 @@ import datetime as dt
 import json
 import os
 import pathlib
+import re
 import subprocess
 import sys
 import time
@@ -46,6 +53,7 @@ HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path.insert(0, str(HERE))
 import encrypt_status as E  # noqa: E402  (같은 폴더의 암호화 규격을 그대로 쓴다)
+import validate_status as V  # noqa: E402  (메시지도 같은 공개 범위 검사를 통과해야 한다)
 
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM  # noqa: E402
 
@@ -58,6 +66,12 @@ VALIDATE = HERE / "validate_status.py"
 
 SEATS = {"chuchu": "초큐티", "haram": "하람 비서", "keyring": "키링", "vee": "브이"}
 KST = dt.timezone(dt.timedelta(hours=9))
+
+# ── 4인 소통칸 규격 ─────────────────────────────────────────────────────────
+MSG_FROM = ("chuchu", "haram", "keyring", "vee")
+MSG_TO = MSG_FROM + ("all",)
+MSG_MAX = 60          # 암호문이 커지지 않게 최근 60개만 보관
+MSG_TEXT_LIMIT = 400  # 한 줄 길이 상한
 
 
 # ── 설정 ────────────────────────────────────────────────────────────────────
@@ -246,6 +260,45 @@ def now_iso() -> str:
     return dt.datetime.now(KST).isoformat(timespec="seconds")
 
 
+# ── 소통칸 도우미 ───────────────────────────────────────────────────────────
+def msg_people(mid: str) -> str:
+    return "전체" if mid == "all" else SEATS.get(mid, mid)
+
+
+def msg_when(iso) -> str:
+    """at 값을 한국 시간 MM/DD HH:MM 으로 짧게."""
+    try:
+        d = dt.datetime.fromisoformat(str(iso))
+        if d.tzinfo is None:
+            d = d.replace(tzinfo=KST)
+        return d.astimezone(KST).strftime("%m/%d %H:%M")
+    except Exception:
+        return str(iso)[:16]
+
+
+def msg_line(m: dict) -> str:
+    return f"{msg_when(m.get('at'))} · {msg_people(str(m.get('from')))} → {msg_people(str(m.get('to')))} · {m.get('text','')}"
+
+
+def sort_messages(msgs) -> list:
+    """at(시각) 오름차순, 같은 시각이면 id 순 — 화면과 CLI가 같은 순서로 본다."""
+    items = [m for m in (msgs or []) if isinstance(m, dict)]
+    return sorted(items, key=lambda m: (str(m.get("at") or ""), str(m.get("id") or "")))
+
+
+def clean_msg_text(text: str) -> str:
+    return re.sub(r"\s+", " ", str(text or "")).strip()[:MSG_TEXT_LIMIT]
+
+
+def print_messages(payload: dict, limit: int = 5, indent: str = "  ") -> None:
+    msgs = sort_messages(payload.get("messages"))
+    if not msgs:
+        return
+    print(f"{indent}소통칸 최근 {min(limit, len(msgs))}개 (전체 {len(msgs)}개)")
+    for m in msgs[-limit:]:
+        print(f"{indent}  {msg_line(m)}")
+
+
 def audit(cfg: dict, by: str, note: str) -> None:
     try:
         db(cfg, "office/log", "POST", {"at": now_iso(), "by": by, "note": note[:160]}, authed=True)
@@ -300,6 +353,7 @@ def cmd_get(args) -> int:
     print(f"  {payload.get('headline','')}")
     for c in payload.get("characters", []):
         print(f"  [{c.get('id')}] {c.get('state')} · {c.get('now')}")
+    print_messages(payload)
     return 0
 
 
@@ -314,6 +368,7 @@ def cmd_pull(args) -> int:
     print(f"✓ DB → 로컬  {payload.get('updated_at')} · {payload.get('updated_by')} 기록")
     for c in payload.get("characters", []):
         print(f"  [{c.get('id')}] {c.get('state')} · {c.get('now')}")
+    print_messages(payload)
     return 0
 
 
@@ -416,6 +471,82 @@ def cmd_timeline(args) -> int:
     return 0
 
 
+def cmd_msg(args) -> int:
+    """소통칸에 한 줄 남기기 — 현재 DB를 받아 messages 배열에만 더하고 바로 올린다."""
+    if args.sender not in MSG_FROM:
+        die(f"보내는 사람은 {', '.join(MSG_FROM)} 중 하나입니다.", 1)
+    to = (args.to or "all").strip()
+    if to not in MSG_TO:
+        die(f"받는 사람은 {', '.join(MSG_TO)} 중 하나입니다.", 1)
+    text = clean_msg_text(args.text)
+    if not text:
+        die("보낼 내용이 비어 있습니다. --text 로 한 줄을 넣어 주세요.", 1)
+    at = args.at or now_iso()
+    try:
+        parsed = dt.datetime.fromisoformat(at)
+        if parsed.tzinfo is None:
+            raise ValueError
+    except ValueError:
+        die("--at 은 시간대가 붙은 ISO 8601 형식이어야 합니다 (예: 2026-11-28T14:16:00+09:00).", 1)
+
+    cfg = config()
+    pw = office_password()
+    old = db(cfg, "office/status")
+    if not valid_meta(old):
+        die("DB에 현황이 없습니다. 먼저 초큐티 쪽에서 `push` 해 주세요.", 1)
+    payload = decrypt(old, pw)
+
+    # 공개 저장소 규칙 — 비밀번호와 개인정보 패턴은 메시지에도 남기지 않는다
+    if pw in text:
+        die("메시지에 현황판 비밀번호가 들어갑니다. 중단합니다.", 1)
+    privacy = V.check_privacy({"text": text})
+    if privacy:
+        print("✗ 공개하면 안 되는 정보가 메시지에 들어 있습니다.")
+        for e in privacy:
+            print("   -", e)
+        die("개인정보·비밀값을 빼고 다시 보내 주세요.", 1)
+
+    msgs = sort_messages(payload.get("messages"))
+    mid = dt.datetime.now(KST).strftime("%Y%m%dT%H%M%S") + "-" + os.urandom(2).hex()
+    msgs.append({"id": mid, "at": at, "from": args.sender, "to": to, "text": text})
+    msgs = sort_messages(msgs)[-MSG_MAX:]
+    payload["messages"] = msgs
+
+    meta = encrypt(payload, pw, hint=old)
+    db(cfg, "office/status", "PUT", meta, authed=True)
+    write_local(payload, meta)
+    heartbeat(cfg, args.sender)
+    audit(cfg, SEATS[args.sender], f"소통칸 → {msg_people(to)}: {text}"[:150])
+    print(f"✓ {SEATS[args.sender]} → {msg_people(to)}  ({msg_when(at)})")
+    print(f"  {text}")
+    print(f"  소통칸 전체 {len(msgs)}개 (최근 {MSG_MAX}개 보관)")
+    print("  웹페이지 회의실 소통칸은 몇 초 안에 자동 반영됩니다.")
+    print("  저장소(암호문)도 함께 맞추려면: ./scripts/publish.sh \"msg: …\"")
+    return 0
+
+
+def cmd_msgs(args) -> int:
+    cfg = config()
+    pw = office_password()
+    meta = db(cfg, "office/status")
+    if not valid_meta(meta):
+        die("DB에 현황이 없습니다.", 1)
+    payload = decrypt(meta, pw)
+    msgs = sort_messages(payload.get("messages"))
+    if args.sender:
+        msgs = [m for m in msgs if m.get("from") == args.sender]
+    if args.to:
+        msgs = [m for m in msgs if m.get("to") in (args.to, "all") and m.get("from") != args.to]
+    if not msgs:
+        print("· 소통칸에 해당하는 메시지가 없습니다.")
+        return 0
+    limit = max(1, int(args.limit))
+    print(f"소통칸 {len(msgs)}개 중 최근 {min(limit, len(msgs))}개")
+    for m in msgs[-limit:]:
+        print("  " + msg_line(m))
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="합동 비서실 실시간 DB 동기화")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -447,6 +578,19 @@ def main() -> int:
     p.add_argument("--done", type=lambda v: v.lower() in ("1", "true", "y", "yes", "완료"), default=True)
     p.add_argument("--by", default="초큐티")
     p.set_defaults(func=cmd_timeline)
+
+    p = sub.add_parser("msg", help="소통칸에 한 줄 남기기 (4인 공용)")
+    p.add_argument("--from", dest="sender", required=True, choices=list(MSG_FROM), help="보내는 자리")
+    p.add_argument("--to", default="all", choices=list(MSG_TO), help="받는 자리 또는 all(전체)")
+    p.add_argument("--text", required=True, help="한 줄 내용 (최대 400자)")
+    p.add_argument("--at", default="", help="시각 지정 (기본: 지금, ISO 8601)")
+    p.set_defaults(func=cmd_msg)
+
+    p = sub.add_parser("msgs", help="소통칸 읽기")
+    p.add_argument("--sender", "--from", dest="sender", choices=list(MSG_FROM), help="보낸 사람으로 거르기")
+    p.add_argument("--to", choices=list(MSG_FROM), help="받는 사람으로 거르기 (all 포함)")
+    p.add_argument("--limit", default=20, type=int, help="최근 N개 (기본 20)")
+    p.set_defaults(func=cmd_msgs)
 
     args = ap.parse_args()
     return args.func(args)

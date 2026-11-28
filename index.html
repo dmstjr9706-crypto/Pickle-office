@@ -201,6 +201,47 @@
   .ch-body p{margin:2px 0 0;font-size:11px;color:var(--muted);line-height:1.45}
   .ch-tag{margin-left:auto;font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:999px;background:var(--mint-bg);color:var(--mint);border:1px solid var(--mint-line);white-space:nowrap}
 
+  /* ---------- 소통칸 (4인 공용 메시지) ---------- */
+  .chat-head{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .chat-live{
+    margin-left:auto;flex:0 0 auto;display:inline-flex;align-items:center;gap:4px;
+    font-size:9.5px;font-weight:800;color:var(--mint);background:var(--mint-bg);
+    border:1px solid var(--mint-line);border-radius:999px;padding:2px 8px;white-space:nowrap
+  }
+  .cf-row{
+    display:flex;gap:5px;overflow-x:auto;margin:11px -2px 0;padding:2px 2px 4px;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none
+  }
+  .cf-row::-webkit-scrollbar{display:none}
+  .cf{
+    flex:0 0 auto;display:inline-flex;align-items:center;gap:4px;font:inherit;font-size:11px;font-weight:800;
+    color:#5B4A38;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 11px;
+    cursor:pointer;letter-spacing:-.03em;box-shadow:var(--shadow-soft);transition:background .15s ease,color .15s ease
+  }
+  .cf b{font-size:9.5px;font-weight:800;font-variant-numeric:tabular-nums;opacity:.7}
+  .cf.on{background:var(--brown);border-color:var(--brown);color:#FFF8EC}
+  .cf.on b{opacity:.9}
+  .cf:active{transform:scale(.98)}
+  .chat-list{list-style:none;margin:4px 0 0;padding:0;display:grid;gap:7px}
+  .msg{
+    position:relative;background:#FFFDF8;border:1px solid #F0E5D4;border-left:3px solid var(--mc,#C9A074);
+    border-radius:4px 14px 14px 4px;padding:8px 10px 9px;box-shadow:var(--shadow-soft)
+  }
+  .msg.broadcast{background:#FFFBF1;border-color:#F2E4CB;border-left-color:var(--mc,#C9A074)}
+  .msg-top{display:flex;align-items:center;gap:5px;flex-wrap:wrap;min-width:0}
+  .msg-mark{
+    flex:0 0 auto;width:19px;height:19px;border-radius:7px;display:grid;place-items:center;
+    font-size:9.5px;font-weight:900;color:#fff;background:var(--mc,#8B6444);line-height:1
+  }
+  .msg-route{font-size:10.5px;font-weight:800;color:#3C2F22;letter-spacing:-.03em;line-height:1.3}
+  .msg-route .arrow{color:#B7A48C;font-weight:800;margin:0 2px}
+  .msg-route .to{color:var(--muted);font-weight:750}
+  .msg-when{margin-left:auto;flex:0 0 auto;font-size:9.5px;font-weight:750;color:var(--faint);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .msg-text{margin:4px 0 0;font-size:12px;font-weight:600;line-height:1.55;color:#3C2F22;white-space:pre-wrap;word-break:break-word}
+  .msg-empty{padding:16px 0 10px;text-align:center;color:var(--faint);font-size:11.5px;line-height:1.6}
+  .chat-foot{margin:9px 0 0;font-size:9.5px;color:var(--faint);line-height:1.5}
+  .chat-foot code{font-size:9px;background:#F1E9DC;border-radius:4px;padding:1px 4px}
+
   /* ---------- workroom ---------- */
   .routine{
     background:#fff;border:1px solid var(--line);border-radius:20px;padding:14px 14px 13px;
@@ -436,6 +477,24 @@
 
     <!-- ══════════ 2. 회의실 ══════════ -->
     <section id="panel-meeting" role="tabpanel" aria-labelledby="tab-btn-meeting" hidden>
+      <div class="card" id="chat-card">
+        <div class="chat-head">
+          <span class="eyebrow">💬 4인 소통칸</span>
+          <span class="chat-live" id="chat-live">불러오는 중</span>
+        </div>
+        <h2>네 식구가 주고받는 말</h2>
+        <p class="lead">누구에게든 한 줄을 남기면 여기에 바로 쌓여요. 최근 60개까지 보여 줍니다.</p>
+        <div class="cf-row" id="chat-filter" role="group" aria-label="보낸 사람으로 걸러 보기">
+          <button type="button" class="cf on" data-f="all" aria-pressed="true">전체 <b>0</b></button>
+          <button type="button" class="cf" data-f="chuchu" aria-pressed="false">초큐티 <b>0</b></button>
+          <button type="button" class="cf" data-f="haram" aria-pressed="false">하람 <b>0</b></button>
+          <button type="button" class="cf" data-f="keyring" aria-pressed="false">키링 <b>0</b></button>
+          <button type="button" class="cf" data-f="vee" aria-pressed="false">부이 <b>0</b></button>
+        </div>
+        <ul class="chat-list" id="chat-list"><li class="msg-empty">불러오는 중…</li></ul>
+        <p class="chat-foot">보내기 — <code>python3 scripts/office_db.py msg --from chuchu --to all --text "한 줄"</code></p>
+      </div>
+
       <div class="card">
         <span class="eyebrow">🗓️ 오늘의 타임라인</span>
         <h2>네 식구가 같은 순서로 움직여요</h2>
@@ -451,6 +510,13 @@
           <div class="ch-body">
             <h4>피클 대화방 <span class="ch-tag">초큐티 ↔ 하람</span></h4>
             <p>역할 분담과 인수인계, 큰 작업 조율은 여기서. 비밀번호·개인정보는 넘기지 않아요.</p>
+          </div>
+        </div>
+        <div class="channel">
+          <span class="ch-ico" aria-hidden="true">💬</span>
+          <div class="ch-body">
+            <h4>4인 소통칸 <span class="ch-tag">네 명 모두</span></h4>
+            <p><b>소통칸</b>에 한 줄을 남기면 누구에게든 바로 전달돼요. 메시지도 현황판과 <b>같은 암호문</b> 안에 쌓입니다.</p>
           </div>
         </div>
         <div class="channel">
@@ -619,7 +685,7 @@
       <div class="card">
         <span class="eyebrow">🛠️ 갱신 방법</span>
         <h2>화면은 스스로 따라와요</h2>
-        <p class="lead">네 식구가 각자 <code style="font-size:11px;background:#F1E9DC;border-radius:4px;padding:1px 4px">scripts/office_db.py seat &lt;자리&gt;</code>로 자기 자리를 고치면 몇 초 안에 반영돼요. DB가 막히면 저장소의 암호화 사본을 대신 읽습니다.</p>
+        <p class="lead">네 식구가 각자 <code style="font-size:11px;background:#F1E9DC;border-radius:4px;padding:1px 4px">scripts/office_db.py seat &lt;자리&gt;</code>로 자기 자리를 고치고, <code style="font-size:11px;background:#F1E9DC;border-radius:4px;padding:1px 4px">msg</code>로 소통칸에 한 줄을 남기면 몇 초 안에 반영돼요. DB가 막히면 저장소의 암호화 사본을 대신 읽습니다.</p>
       </div>
     </section>
   </main>
@@ -871,6 +937,80 @@
     if (lead) lead.textContent = dayLabel(data.updated_at) + " 기준 · " + items.filter(function (t) { return t.done; }).length + "/" + items.length + " 완료";
   }
 
+  /* ---------- 소통칸 (4인 공용 메시지) ---------- */
+  var CHAT_NAMES = { chuchu: "초큐티", haram: "하람 비서", keyring: "키링", vee: "부이", all: "전체" };
+  var chatFilter = "all";
+  function chatName(id) { return CHAT_NAMES[id] || id || "?"; }
+  function chatColor(id) {
+    if (id === "all") return "#8B6444";
+    var c = charById(id);
+    return (c && (c.deep || c.color)) || "#C9A074";
+  }
+  function chatMark(id) {
+    if (id === "all") return "★";
+    if (id === "vee") return "ㅂ";
+    var c = charById(id);
+    return (c && c.mark) || chatName(id).charAt(0);
+  }
+  function chatWhen(iso) {
+    var d = new Date(Date.parse(iso));
+    if (isNaN(d.getTime())) return "—";
+    var s = new Date(d.getTime() + (d.getTimezoneOffset() + 540) * 60000);
+    var hh = String(s.getHours()).padStart(2, "0") + ":" + String(s.getMinutes()).padStart(2, "0");
+    var n = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+    var sameDay = s.getFullYear() === n.getFullYear() && s.getMonth() === n.getMonth() && s.getDate() === n.getDate();
+    return sameDay ? hh : (s.getMonth() + 1) + "/" + s.getDate() + " " + hh;
+  }
+  function chatMessages(data) {
+    var list = (data && data.messages) || [];
+    return list.filter(function (m) { return m && m.text; }).slice().sort(function (a, b) {
+      var ta = Date.parse(a.at) || 0, tb = Date.parse(b.at) || 0;
+      if (ta !== tb) return tb - ta;              /* 최신이 위 */
+      return String(b.id || "").localeCompare(String(a.id || ""));
+    });
+  }
+  function renderChat(data) {
+    var body = $("#chat-list");
+    if (!body) return;
+    var all = chatMessages(data);
+    var counts = { all: all.length };
+    all.forEach(function (m) { counts[m.from] = (counts[m.from] || 0) + 1; });
+    $$("#chat-filter .cf").forEach(function (b) {
+      var f = b.getAttribute("data-f");
+      var n = b.querySelector("b");
+      if (n) n.textContent = counts[f] || 0;
+      var on = f === chatFilter;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    var live = $("#chat-live");
+    if (live) live.textContent = all.length ? "최근 " + all.length + "개" : "아직 비었어요";
+    var shown = all.filter(function (m) { return chatFilter === "all" || m.from === chatFilter; });
+    if (!shown.length) {
+      body.innerHTML = "<li class='msg-empty'>" + (all.length
+        ? esc(chatName(chatFilter)) + "가 남긴 말이 아직 없어요."
+        : "아직 소통 기록이 없어요.<br>네 식구가 한 줄씩 남기면 여기에 쌓입니다.") + "</li>";
+      return;
+    }
+    body.innerHTML = shown.map(function (m) {
+      return "<li class='msg" + (m.to === "all" ? " broadcast" : "") + "' style='--mc:" + esc(chatColor(m.from)) + "'>" +
+        "<div class='msg-top'>" +
+          "<span class='msg-mark' aria-hidden='true'>" + esc(chatMark(m.from)) + "</span>" +
+          "<span class='msg-route'>" + esc(chatName(m.from)) +
+            "<span class='arrow' aria-hidden='true'>→</span><span class='to'>" + esc(chatName(m.to)) + "</span></span>" +
+          "<span class='msg-when'>" + esc(chatWhen(m.at)) + "</span>" +
+        "</div>" +
+        "<p class='msg-text'>" + esc(m.text) + "</p>" +
+      "</li>";
+    }).join("");
+  }
+  $$("#chat-filter .cf").forEach(function (b) {
+    b.addEventListener("click", function () {
+      chatFilter = b.getAttribute("data-f") || "all";
+      if (lastData) renderChat(lastData);
+    });
+  });
+
   /* ---------- status tab ---------- */
   function renderYoutube(data) {
     var body = $("#yt-body");
@@ -955,6 +1095,7 @@
     lastData = data;
     renderMapDetail();
     renderTimeline(data);
+    renderChat(data);
     renderStatus(data);
     var up = $("#updated");
     if (up) up.textContent = "현황판 갱신 " + ago(data.updated_at);
@@ -1092,6 +1233,10 @@
     if (d) d.innerHTML = "<p class='loading'>불러오는 중…</p>";
     var b = $("#tl-body");
     if (b) b.innerHTML = "<li class='loading'>불러오는 중…</li>";
+    var ch = $("#chat-list");
+    if (ch) ch.innerHTML = "<li class='msg-empty'>불러오는 중…</li>";
+    var cl = $("#chat-live");
+    if (cl) cl.textContent = "불러오는 중";
     var y = $("#yt-body");
     if (y) y.innerHTML = "<p class='loading'>불러오는 중…</p>";
     var p = $("#pub-body");

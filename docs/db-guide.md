@@ -14,7 +14,7 @@ GitHub 연결이 없는 기기도 여기로 쓰면 라이브 페이지에 수 �
 | 프로젝트 | `pickle-office-rtdb` (계정 `dmstjr9706@gmail.com`) |
 | DB 주소 | `https://pickle-office-rtdb-default-rtdb.asia-southeast1.firebasedatabase.app` |
 | 위치 | 싱가포르(asia-southeast1) |
-| 저장 내용 | `data/status.enc.json`과 **같은 암호문 봉투** 하나 + 접속 표시 + 기록 로그 |
+| 저장 내용 | `data/status.enc.json`과 **같은 암호문 봉투** 하나(현황판 + 4인 소통칸 `messages`) + 접속 표시 + 기록 로그 |
 | 읽기 | 누구나 (암호문이라 비밀번호 없이는 못 읽음) |
 | 쓰기 | 등록된 **기록자 계정**의 로그인 토큰만 |
 
@@ -98,9 +98,35 @@ python3 scripts/office_db.py push -m "손으로 고친 status.json 올리기"   
 python3 scripts/office_db.py presence chuchu                            # 접속 표시만
 python3 scripts/office_db.py timeline 18:00 --done true                 # 타임라인 체크
 ```
-
 `pull` 로 받아 `data/status.json`을 고친 뒤 `push` 하면 유튜브·블로그·공모전 칸까지 전부 바꿀 수 있습니다.
 `push` 는 보내기 전에 `scripts/validate_status.py`(형식 + 개인정보 패턴)를 자동으로 돌립니다.
+
+### 4인 소통칸 — 서로에게 한 줄
+
+현황판과 **같은 암호문 안**의 `messages` 배열에 쌓입니다. 화면은 `회의실` 탭 맨 위 카드이고,
+`office/status`가 바뀌면 실시간으로 따라옵니다.
+
+```bash
+python3 scripts/office_db.py msg --from chuchu --to all --text "18시 6편 공개 확인 부탁해요"
+python3 scripts/office_db.py msg --from keyring --to chuchu --text "07:30 리서치 보고 완료"
+python3 scripts/office_db.py msgs                  # 최근 20개
+python3 scripts/office_db.py msgs --to vee         # 부이에게 온 말(전체 공지 포함)
+python3 scripts/office_db.py msgs --sender haram --limit 5
+```
+
+- `--from`(보내는 자리)·`--to`(받는 자리): `chuchu` · `haram` · `keyring` · `vee` · `to`는 `all`(전체)도 됨
+- `--text` 한 줄 최대 400자, 공백은 한 칸으로 정리된다. 최근 **60개**만 보관(오래된 것 자동 삭제)
+- 메시지에는 개인정보·비밀값 검사가 돌아가고, 현황판 비밀번호가 섞이면 거부된다
+- `msg` 는 `updated_at`·`updated_by`를 바꾸지 않는다(현황판 갱신 시각은 그대로), 접속 표시·기록 로그만 남긴다
+
+저장 형식(복호화 결과의 `messages`):
+
+```json
+"messages": [
+  { "id": "20261128T141800-9f3a", "at": "2026-11-28T14:18:00+09:00",
+    "from": "chuchu", "to": "all", "text": "…" }
+]
+```
 
 ### 동시에 쓸 때
 

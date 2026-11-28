@@ -22,6 +22,9 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = ROOT / "data" / "status.json"
 
 CHAR_IDS = {"chuchu", "haram", "keyring", "vee"}
+MSG_TO_IDS = CHAR_IDS | {"all"}
+MSG_MAX = 60
+MSG_TEXT_LIMIT = 400
 STATUS_WORDS = {"발행 완료", "예약", "예정", "진행 중", "공개 완료", "대기"}
 
 # 공개 저장소에 올리면 안 되는 패턴 -------------------------------------------------
@@ -113,6 +116,39 @@ def check_schema(d: dict) -> list[str]:
         for k in ("id", "icon", "title", "headline"):
             if k not in b:
                 errs.append(f"campaigns[{i}] 에 '{k}' 없음")
+
+    # 소통칸 messages — 없어도 되지만(예전 현황판 호환), 있으면 규격을 지킨다
+    msgs = d.get("messages")
+    if msgs is not None:
+        if not isinstance(msgs, list):
+            errs.append("messages 는 배열이어야 함")
+        else:
+            if len(msgs) > MSG_MAX:
+                errs.append(f"messages 는 최근 {MSG_MAX}개까지만 둡니다 (지금 {len(msgs)}개)")
+            seen_ids = set()
+            for i, m in enumerate(msgs):
+                if not isinstance(m, dict):
+                    errs.append(f"messages[{i}] 는 객체여야 함")
+                    continue
+                for k in ("id", "at", "from", "to", "text"):
+                    if k not in m:
+                        errs.append(f"messages[{i}] 에 '{k}' 없음")
+                if m.get("from") not in CHAR_IDS:
+                    errs.append(f"messages[{i}].from '{m.get('from')}' 는 chuchu/haram/keyring/vee 중 하나여야 함")
+                if m.get("to") not in MSG_TO_IDS:
+                    errs.append(f"messages[{i}].to '{m.get('to')}' 는 chuchu/haram/keyring/vee/all 중 하나여야 함")
+                try:
+                    dt.datetime.fromisoformat(str(m.get("at")))
+                except ValueError:
+                    errs.append(f"messages[{i}].at 이 ISO 8601 형식이 아님")
+                text = m.get("text")
+                if not isinstance(text, str) or not text.strip():
+                    errs.append(f"messages[{i}].text 가 비어 있음")
+                elif len(text) > MSG_TEXT_LIMIT:
+                    errs.append(f"messages[{i}].text 가 {MSG_TEXT_LIMIT}자를 넘음 ({len(text)}자)")
+                if m.get("id") in seen_ids and m.get("id"):
+                    errs.append(f"messages[{i}].id 중복: {m.get('id')}")
+                seen_ids.add(m.get("id"))
     return errs
 
 
@@ -142,6 +178,10 @@ def summary(d: dict) -> str:
         lines.append(f"  · {p['platform']:<7} {p['slot']} {p['name']:<10} {p['status']}  {p['title'][:34]}")
     done = sum(1 for t in d["timeline"] if t["done"])
     lines.append(f"  · 타임라인 {done}/{len(d['timeline'])} 완료")
+    msgs = d.get("messages") or []
+    if msgs:
+        last = sorted(msgs, key=lambda m: str(m.get("at") or ""))[-1]
+        lines.append(f"  · 소통칸 {len(msgs)}개 · 최근 {str(last.get('at'))[:16]} {last.get('from')} → {last.get('to')}")
     return "\n".join(lines)
 
 
@@ -180,7 +220,7 @@ def main() -> int:
         print("✓ 검사 통과 — 형식·공개 범위 모두 문제 없음\n")
         print(summary(d))
         print(f"\n{len(d['characters'])}명 캐릭터 · {sum(len(x['slots']) for x in d['youtube'])}개 예약 슬롯 · "
-              f"{len(d['publishing'])}개 발행 항목 · {len(d['timeline'])}개 일정")
+              f"{len(d['publishing'])}개 발행 항목 · {len(d['timeline'])}개 일정 · {len(d.get('messages') or [])}개 소통칸 메시지")
     else:
         print("✓ 검사 통과")
     return 0
