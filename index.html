@@ -239,8 +239,9 @@
   .msg-when{margin-left:auto;flex:0 0 auto;font-size:9.5px;font-weight:750;color:var(--faint);font-variant-numeric:tabular-nums;white-space:nowrap}
   .msg-text{margin:4px 0 0;font-size:12px;font-weight:600;line-height:1.55;color:#3C2F22;white-space:pre-wrap;word-break:break-word}
   .msg-empty{padding:16px 0 10px;text-align:center;color:var(--faint);font-size:11.5px;line-height:1.6}
-  .chat-foot{margin:9px 0 0;font-size:9.5px;color:var(--faint);line-height:1.5}
-  .chat-foot code{font-size:9px;background:#F1E9DC;border-radius:4px;padding:1px 4px}
+  .chat-foot{margin:9px 0 0;font-size:9.5px;color:var(--faint);line-height:1.6}
+  .chat-foot b{color:var(--muted);font-weight:800}
+  .chat-foot code{font-size:9px;background:#F1E9DC;border-radius:4px;padding:1px 4px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 
   /* ---------- workroom ---------- */
   .routine{
@@ -492,7 +493,7 @@
           <button type="button" class="cf" data-f="vee" aria-pressed="false">부이 <b>0</b></button>
         </div>
         <ul class="chat-list" id="chat-list"><li class="msg-empty">불러오는 중…</li></ul>
-        <p class="chat-foot">보내기 — <code>python3 scripts/office_db.py msg --from chuchu --to all --text "한 줄"</code></p>
+        <p class="chat-foot"><b>보내기</b> — <code>office_db.py msg --from chuchu --to all --text "한 줄"</code></p>
       </div>
 
       <div class="card">
