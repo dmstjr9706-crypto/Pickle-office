@@ -132,6 +132,11 @@
     font-size:11px;font-weight:650;color:var(--faint);letter-spacing:-.02em;padding:9px 6px 7px
   }
   .map-cap::before,.map-cap::after{content:"";height:1px;flex:1;max-width:46px;background:#E7DAC7}
+  /* 좁은 화면에서는 이름표를 조금 작게 — 캐릭터 얼굴을 가리지 않도록 */
+  @media(max-width:480px){
+    .pill{font-size:9.5px;padding:4px 7px;gap:3px}
+    .pill .em{font-size:11px}
+  }
 
   /* map detail */
   .detail{border-top:3px solid var(--d,#C9A074)}
@@ -347,7 +352,7 @@
   @media(max-width:360px){
     .tab{font-size:9.5px}
     .tab .ti{width:32px;height:32px;font-size:16px}
-    .pill{font-size:9.5px;padding:4px 8px}
+    .pill{font-size:9.5px;padding:4px 7px}
     h1{font-size:21px}
   }
 </style>
@@ -414,11 +419,11 @@
       <div class="map-card">
         <div class="map-frame" id="map-frame">
           <img src="assets/office-3d.jpg" alt="따뜻한 원목 톤의 3D 아이소메트릭 합동 비서실 — 회의실, 지휘 책상, 팀원 책상, 라운지" width="1340" height="793">
-          <button class="pill moving" type="button" data-room="chuchu" style="left:54%;top:22%;animation-delay:0s"><span class="em" aria-hidden="true">🎯</span>초큐티 (지휘실)</button>
-          <button class="pill moving" type="button" data-room="haram" style="left:36%;top:45%;animation-delay:-1.2s"><span class="em" aria-hidden="true">🐰</span>하람 비서</button>
-          <button class="pill moving" type="button" data-room="keyring" style="left:64%;top:45%;animation-delay:-2.1s"><span class="em" aria-hidden="true">🔑</span>키링</button>
-          <button class="pill moving" type="button" data-room="vee" style="left:56%;top:70%;animation-delay:-2.9s"><span class="em" aria-hidden="true">🐝</span>부이</button>
-          <button class="pill" type="button" data-room="meeting" style="left:16%;top:26%"><span class="em" aria-hidden="true">🏛️</span>대회의실</button>
+          <button class="pill moving" type="button" data-room="chuchu" style="left:53%;top:28.5%;animation-delay:0s"><span class="em" aria-hidden="true">🎯</span>초큐티 (지휘실)</button>
+          <button class="pill moving" type="button" data-room="haram" style="left:40%;top:53.5%;animation-delay:-1.2s"><span class="em" aria-hidden="true">🐰</span>하람 비서</button>
+          <button class="pill moving" type="button" data-room="keyring" style="left:61%;top:61.5%;animation-delay:-2.1s"><span class="em" aria-hidden="true">🔑</span>키링</button>
+          <button class="pill moving" type="button" data-room="vee" style="left:50.5%;top:87%;animation-delay:-2.9s"><span class="em" aria-hidden="true">🐝</span>부이</button>
+          <button class="pill" type="button" data-room="meeting" style="left:15%;top:40%"><span class="em" aria-hidden="true">🏛️</span>대회의실</button>
           <button class="pill" type="button" data-room="lounge" style="left:73%;top:84%"><span class="em" aria-hidden="true">☕</span>라운지</button>
         </div>
         <p class="map-cap">캐릭터 배지를 탭하면 오늘 기준 진행 상황이 열려요</p>
