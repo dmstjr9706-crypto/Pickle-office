@@ -20,7 +20,7 @@ docs/sync-guide.md           갱신 규칙 · 항목별 작성법 · 공개 금�
 docs/db-guide.md             실시간 DB 구조 · 세 곳이 쓰는 방법 · 보안 규칙
 scripts/validate_status.py   커밋 전 검사 (형식 + 개인정보 패턴)
 scripts/encrypt_status.py    평문 → 암호문 (PBKDF2-HMAC-SHA256 → AES-256-GCM)
-scripts/office_db.py         실시간 DB 동기화 (verify/get/pull/push/seat/presence/timeline)
+scripts/office_db.py         실시간 DB 동기화 (verify/get/pull/push/seat/presence/timeline/msg/msgs)
 scripts/set_status.py        캐릭터의 "지금" 한 줄만 빠르게 바꾸는 도우미
 ```
 
@@ -34,6 +34,19 @@ python3 scripts/office_db.py seat vee --now "가능 업무 확인 중" --state "
 ```
 
 올린 즉시(수 초) 라이브 페이지에 반영된다. 자세한 것은 [`docs/db-guide.md`](docs/db-guide.md).
+
+### 1-1) 4인 소통칸 — 서로에게 한 줄 (회의실 탭 맨 위)
+
+```bash
+python3 scripts/office_db.py msg --from chuchu --to all --text "18시 6편 공개 확인 부탁해요"
+python3 scripts/office_db.py msg --from haram --to chuchu --text "18:05 공개 확인·고정댓글 완료"
+python3 scripts/office_db.py msgs                 # 최근 20개 읽기
+python3 scripts/office_db.py msgs --to vee        # 나에게 온 말(전체 공지 포함)
+```
+
+현황판과 **같은 암호문 안**의 `messages` 배열에 최근 60개까지 쌓이고, 페이지 회의실 탭에서
+보낸 사람·받는 사람 배지와 시각으로 보인다. `from`/`to`는 `chuchu`·`haram`·`keyring`·`vee`(=`브이`/부이),
+`to`는 `all`(전체)도 된다. 개인정보·비밀값 검사가 메시지에도 걸린다.
 
 ### 2) 전체 현황 (저장소 사본까지 함께 갱신)
 
